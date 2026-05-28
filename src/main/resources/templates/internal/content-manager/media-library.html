@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Media Library</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">></span><span>Media Library</span></th:block>
+<th:block layout:fragment="styles">
+    <style>
+        .media-board {
+            display: grid;
+            gap: 1.4rem;
+        }
+        .media-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .media-summary-card {
+            padding: 1.15rem 1.2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+        }
+        .media-summary-card__label {
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-size: .78rem;
+            margin-bottom: .45rem;
+        }
+        .media-summary-card__value {
+            font-size: 2.05rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .media-summary-card__meta {
+            margin-top: .65rem;
+            color: var(--color-gray-400);
+            font-size: .92rem;
+        }
+        .media-toggle-actions {
+            display: flex;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+        .media-form-panel {
+            display: none;
+        }
+        .media-form-panel.is-open {
+            display: block;
+        }
+        .media-filter-shell {
+            padding: 1rem 1.1rem;
+        }
+        .media-filter-form {
+            display: grid;
+            grid-template-columns: 1fr 180px auto;
+            gap: .75rem;
+            align-items: end;
+        }
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .media-card {
+            border-radius: 26px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.02);
+            overflow: hidden;
+            display: grid;
+        }
+        .media-card__preview {
+            aspect-ratio: 16 / 10;
+            background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(0,162,89,.08));
+            position: relative;
+            overflow: hidden;
+        }
+        .media-card__preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .media-card__preview-fallback {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-400);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .media-card__body {
+            padding: 1.15rem;
+            display: grid;
+            gap: .9rem;
+        }
+        .media-card__headline {
+            display: flex;
+            justify-content: space-between;
+            gap: .75rem;
+            align-items: flex-start;
+        }
+        .media-card__title {
+            margin: 0;
+            font-size: 1.06rem;
+        }
+        .media-card__key {
+            margin: .3rem 0 0;
+            color: var(--color-gray-500);
+            font-size: .82rem;
+            word-break: break-all;
+        }
+        .media-card__meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+        .media-card__meta-block {
+            padding: .85rem .9rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,.03);
+        }
+        .media-card__meta-label {
+            color: var(--color-gray-500);
+            font-size: .76rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: .35rem;
+        }
+        .media-card__meta-value {
+            color: var(--color-gray-100);
+            font-weight: 600;
+            word-break: break-word;
+        }
+        .media-card__url {
+            display: block;
+            color: var(--color-primary);
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .media-card__actions {
+            display: flex;
+            justify-content: space-between;
+            gap: .75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .media-confirm {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.66);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 60;
+        }
+        .media-confirm.is-open {
+            display: flex;
+        }
+        .media-confirm__dialog {
+            width: min(520px, 100%);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(20,20,20,.98), rgba(12,12,12,.96));
+            box-shadow: 0 30px 80px rgba(0,0,0,.45);
+            padding: 1.5rem;
+        }
+        .media-confirm__eyebrow {
+            color: var(--color-primary-light);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            font-size: .72rem;
+            margin-bottom: .8rem;
+        }
+        .media-confirm__title {
+            margin: 0 0 .6rem;
+            font-size: 1.5rem;
+        }
+        .media-confirm__copy {
+            color: var(--color-gray-400);
+            line-height: 1.65;
+            margin-bottom: 1.2rem;
+        }
+        .media-confirm__asset {
+            padding: .95rem 1rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.06);
+            color: var(--color-gray-100);
+            margin-bottom: 1.2rem;
+            word-break: break-word;
+        }
+        .media-confirm__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 900px) {
+            .media-filter-form {
+                grid-template-columns: 1fr;
+            }
+            .media-card__meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</th:block>
+<main layout:fragment="content">
+    <div class="media-board">
+        <div class="admin-page-header">
+            <div class="admin-page-header__info">
+                <h1>Media Library</h1>
+                <p>Upload, organize, and reuse visual assets with a cleaner content workflow instead of a raw storage table.</p>
+            </div>
+            <div class="media-toggle-actions">
+                <button class="btn btn--primary btn--sm" type="button" onclick="toggleMediaPanel('upload-section')">Upload File</button>
+                <button class="btn btn--outline btn--sm" type="button" onclick="toggleMediaPanel('url-section')">Add by URL</button>
+            </div>
+        </div>
+
+        <section class="media-summary">
+            <article class="media-summary-card">
+                <div class="media-summary-card__label">Total Assets</div>
+                <div class="media-summary-card__value" th:text="${#lists.size(items)}">0</div>
+                <div class="media-summary-card__meta">Everything currently loaded into the content team's shared library.</div>
+            </article>
+            <article class="media-summary-card">
+                <div class="media-summary-card__label">Image Assets</div>
+                <div class="media-summary-card__value" th:text="${items.?[contentType != null and #strings.startsWith(contentType, 'image')].size()}">0</div>
+                <div class="media-summary-card__meta">Ready for products, stories, talent profiles, and campaigns.</div>
+            </article>
+            <article class="media-summary-card">
+                <div class="media-summary-card__label">Active Filter</div>
+                <div class="media-summary-card__value" th:text="${contentType != null and !#strings.isEmpty(contentType) ? #strings.toUpperCase(contentType) : 'ALL'}">ALL</div>
+                <div class="media-summary-card__meta" th:text="${q != null and !#strings.isEmpty(q) ? 'Search: ' + q : 'Browsing the full library without a search term.'}">Browsing the full library without a search term.</div>
+            </article>
+        </section>
+
+        <div class="admin-card media-form-panel" id="upload-section">
+            <div class="admin-card__header"><h3>Upload File</h3></div>
+            <div class="admin-card__body">
+                <form th:action="@{/admin/content/media-library/upload}" method="post" enctype="multipart/form-data" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">File</label><input class="form-input" type="file" name="file" required /></div>
+                        <div class="form-group"><label class="form-label">Title</label><input class="form-input" name="title" placeholder="Readable asset title" /></div>
+                    </div>
+                    <div class="form-row--full">
+                        <div class="form-group"><label class="form-label">Alt Text</label><input class="form-input" name="altText" placeholder="Describe the image for accessibility and reuse" /></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline btn--sm" onclick="closeMediaPanel('upload-section')">Cancel</button>
+                        <button type="submit" class="btn btn--primary btn--sm">Upload Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card media-form-panel" id="url-section">
+            <div class="admin-card__header"><h3>Add Media by URL</h3></div>
+            <div class="admin-card__body">
+                <form th:action="@{/admin/content/media-library}" method="post" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Storage Key</label><input class="form-input" name="storageKey" required placeholder="media/campaigns/tree-drive-01" /></div>
+                        <div class="form-group"><label class="form-label">Public URL</label><input class="form-input" name="publicUrl" required placeholder="https://..." /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Content Type</label><input class="form-input" name="contentType" placeholder="image/jpeg" /></div>
+                        <div class="form-group"><label class="form-label">Title</label><input class="form-input" name="title" placeholder="Readable asset title" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Alt Text</label><input class="form-input" name="altText" placeholder="Describe the visual" /></div>
+                        <div class="form-group"><label class="form-label">File Size (bytes)</label><input class="form-input" type="number" name="fileSizeBytes" placeholder="Optional" /></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline btn--sm" onclick="closeMediaPanel('url-section')">Cancel</button>
+                        <button type="submit" class="btn btn--primary btn--sm">Save Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__body media-filter-shell">
+                <form method="get" th:action="@{/admin/content/media-library}" class="media-filter-form">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Search</label>
+                        <input class="form-input" name="q" placeholder="Search titles, keys, or URLs..." th:value="${q}" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="contentType">
+                            <option value="">All types</option>
+                            <option value="image" th:selected="${contentType == 'image'}">Images</option>
+                            <option value="video" th:selected="${contentType == 'video'}">Videos</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:.6rem; align-items:end;">
+                        <button class="btn btn--outline btn--sm" type="submit">Filter</button>
+                        <a class="btn btn--ghost btn--sm" th:href="@{/admin/content/media-library}">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__header">
+                <h3>All Media</h3>
+                <span class="chip chip--info" th:text="${#lists.size(items)} + ' assets'">0 assets</span>
+            </div>
+            <div class="admin-card__body">
+                <div th:if="${#lists.isEmpty(items)}" class="admin-empty">
+                    <div class="admin-empty__icon">*</div>
+                    <div class="admin-empty__text">No media assets yet</div>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(items)}" class="media-gallery">
+                    <article th:each="m : ${items}" class="media-card">
+                        <div class="media-card__preview">
+                            <img th:if="${m.contentType != null and m.contentType.startsWith('image')}" th:src="${m.publicUrl}" alt="" onerror="this.style.display='none'; this.parentElement.querySelector('.media-card__preview-fallback').style.display='flex';" />
+                            <div class="media-card__preview-fallback" th:style="${m.contentType != null and m.contentType.startsWith('image')} ? 'display:none;' : ''">MEDIA</div>
+                        </div>
+                        <div class="media-card__body">
+                            <div class="media-card__headline">
+                                <div>
+                                    <h4 class="media-card__title" th:text="${m.title != null and !#strings.isEmpty(m.title) ? m.title : m.storageKey}">Asset</h4>
+                                    <p class="media-card__key" th:text="${m.storageKey}">storage-key</p>
+                                </div>
+                                <span class="chip" th:text="${m.contentType != null ? #strings.toUpperCase(m.contentType) : 'UNKNOWN'}">IMAGE/JPEG</span>
+                            </div>
+
+                            <div class="media-card__meta">
+                                <div class="media-card__meta-block">
+                                    <div class="media-card__meta-label">Public URL</div>
+                                    <a class="media-card__url" th:href="${m.publicUrl}" target="_blank" rel="noopener" th:text="${m.publicUrl}">url</a>
+                                </div>
+                                <div class="media-card__meta-block">
+                                    <div class="media-card__meta-label">Size</div>
+                                    <div class="media-card__meta-value" th:text="${m.fileSizeBytes != null ? (m.fileSizeBytes / 1024) + ' KB' : 'Unknown'}">38 KB</div>
+                                </div>
+                                <div class="media-card__meta-block">
+                                    <div class="media-card__meta-label">Alt Text</div>
+                                    <div class="media-card__meta-value" th:text="${m.altText != null and !#strings.isEmpty(m.altText) ? m.altText : 'Not provided'}">Not provided</div>
+                                </div>
+                                <div class="media-card__meta-block">
+                                    <div class="media-card__meta-label">Created Title</div>
+                                    <div class="media-card__meta-value" th:text="${m.title != null and !#strings.isEmpty(m.title) ? m.title : 'Using storage key'}">Lake Kivu URL Test</div>
+                                </div>
+                            </div>
+
+                            <div class="media-card__actions">
+                                <a class="btn btn--outline btn--sm" th:href="${m.publicUrl}" target="_blank" rel="noopener">Open Asset</a>
+                                <form th:id="'delete-media-' + ${m.id}" th:action="@{|/admin/content/media-library/${m.id}/delete|}" method="post" style="margin:0;">
+                                    <button class="btn btn--ghost btn--sm" type="button" th:attr="data-title=${m.title != null and !#strings.isEmpty(m.title) ? m.title : m.storageKey}" th:onclick="|openMediaDeleteModal(${m.id}, this.getAttribute('data-title'))|">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="media-delete-modal" class="media-confirm" aria-hidden="true">
+        <div class="media-confirm__dialog">
+            <div class="media-confirm__eyebrow">Delete Asset</div>
+            <h3 class="media-confirm__title">Remove this media item?</h3>
+            <p class="media-confirm__copy">This will remove the asset record from the media library immediately. Use this only if the asset should no longer be reused anywhere in content operations.</p>
+            <div class="media-confirm__asset" id="media-delete-name">Asset name</div>
+            <div class="media-confirm__actions">
+                <button type="button" class="btn btn--outline btn--sm" onclick="closeMediaDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn--primary btn--sm" onclick="confirmMediaDelete()">Delete Asset</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+    <script>
+        let mediaDeleteFormId = null;
+
+        function toggleMediaPanel(id) {
+            const panel = document.getElementById(id);
+            if (!panel) return;
+            panel.classList.toggle('is-open');
+        }
+
+        function closeMediaPanel(id) {
+            const panel = document.getElementById(id);
+            if (!panel) return;
+            panel.classList.remove('is-open');
+        }
+
+        function openMediaDeleteModal(id, title) {
+            mediaDeleteFormId = 'delete-media-' + id;
+            document.getElementById('media-delete-name').textContent = title || 'Unnamed asset';
+            document.getElementById('media-delete-modal').classList.add('is-open');
+            document.getElementById('media-delete-modal').setAttribute('aria-hidden', 'false');
+        }
+
+        function closeMediaDeleteModal() {
+            mediaDeleteFormId = null;
+            document.getElementById('media-delete-modal').classList.remove('is-open');
+            document.getElementById('media-delete-modal').setAttribute('aria-hidden', 'true');
+        }
+
+        function confirmMediaDelete() {
+            if (!mediaDeleteFormId) return;
+            const form = document.getElementById(mediaDeleteFormId);
+            if (form) {
+                form.submit();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeMediaDeleteModal();
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

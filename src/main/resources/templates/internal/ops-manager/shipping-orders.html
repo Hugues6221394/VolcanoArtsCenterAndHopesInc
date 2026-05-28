@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Shipping Orders</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Shipping Orders</span>
+</th:block>
+
+<th:block layout:fragment="styles">
+    <style>
+        .shipping-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .shipping-summary-card {
+            padding: 1.1rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(16, 21, 19, 0.98), rgba(9, 14, 12, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .shipping-summary-card__label {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .shipping-summary-card__value {
+            margin-top: 0.45rem;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .shipping-summary-card__meta {
+            margin-top: 0.55rem;
+            color: var(--color-gray-400);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .shipping-table-title {
+            display: grid;
+            gap: 0.28rem;
+        }
+
+        .shipping-table-title .cell-primary {
+            font-size: 0.98rem;
+        }
+
+        .shipping-table-meta {
+            color: var(--color-gray-500);
+            font-size: 0.76rem;
+            line-height: 1.45;
+        }
+
+        .shipping-status-stack {
+            display: grid;
+            gap: 0.4rem;
+        }
+
+        .shipping-chip-row {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .shipping-status-note {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            line-height: 1.4;
+        }
+
+        .shipping-action-stack {
+            display: grid;
+            gap: 0.55rem;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .shipping-action-card {
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+            min-width: 0;
+        }
+
+        .shipping-action-card__label {
+            display: block;
+            margin-bottom: 0.45rem;
+            color: var(--color-gray-500);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .shipping-action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.45rem;
+            align-items: start;
+        }
+
+        .shipping-action-grid--notify {
+            grid-template-columns: 1fr;
+            margin-top: 0.55rem;
+        }
+
+        .shipping-action-grid__full {
+            grid-column: 1 / -1;
+        }
+
+        .shipping-action-grid .form-select,
+        .shipping-action-grid .form-input {
+            padding: 0.58rem 0.7rem;
+            min-height: 2.7rem;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .shipping-action-grid .btn {
+            min-height: 2.7rem;
+            padding: 0.62rem 0.95rem;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        .shipping-action-card__hint {
+            margin-top: 0.5rem;
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            line-height: 1.45;
+        }
+
+        .shipping-item-list {
+            display: grid;
+            gap: 0.24rem;
+        }
+
+        .shipping-empty-note {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+        }
+
+        .shipping-editor-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .shipping-editor-card {
+            padding: 1rem 1.05rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(14, 19, 17, 0.98), rgba(9, 14, 12, 0.96));
+        }
+
+        .shipping-editor-card__header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 0.9rem;
+        }
+
+        .shipping-editor-card__title {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .shipping-editor-card__title .cell-primary {
+            font-size: 1rem;
+        }
+
+        .shipping-editor-card__meta {
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .shipping-actions-cell {
+            min-width: 320px;
+            width: 320px;
+            vertical-align: top;
+        }
+
+        .shipping-table td {
+            vertical-align: top;
+        }
+
+        @media (max-width: 1150px) {
+            .shipping-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .shipping-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .shipping-action-stack {
+                min-width: 0;
+            }
+
+            .shipping-action-grid,
+            .shipping-action-grid--notify {
+                grid-template-columns: 1fr;
+            }
+
+            .shipping-action-grid__full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</th:block>
+
+<main layout:fragment="content">
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Shipping Orders</h1>
+            <p>Track fulfillment, see what each order contains, and keep shipping, payment, and tracking updates in one operations view.</p>
+        </div>
+    </div>
+
+    <div class="shipping-summary-grid">
+        <article class="shipping-summary-card">
+            <div class="shipping-summary-card__label">New Or Active</div>
+            <div class="shipping-summary-card__value" th:text="${processingOrdersCount}">0</div>
+            <div class="shipping-summary-card__meta">Orders still being packed, prepared, or waiting on shipment.</div>
+        </article>
+        <article class="shipping-summary-card">
+            <div class="shipping-summary-card__label">In Transit</div>
+            <div class="shipping-summary-card__value" th:text="${shippedOrdersCount}">0</div>
+            <div class="shipping-summary-card__meta">Orders already shipped or currently moving toward the recipient.</div>
+        </article>
+        <article class="shipping-summary-card">
+            <div class="shipping-summary-card__label">Delivered</div>
+            <div class="shipping-summary-card__value" th:text="${deliveredOrdersCount}">0</div>
+            <div class="shipping-summary-card__meta">Completed deliveries that can unlock verified-product review eligibility.</div>
+        </article>
+        <article class="shipping-summary-card">
+            <div class="shipping-summary-card__label">Unpaid</div>
+            <div class="shipping-summary-card__value" th:text="${unpaidOrdersCount}">0</div>
+            <div class="shipping-summary-card__meta">Orders still waiting on payment confirmation or manual collection.</div>
+        </article>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card__header">
+            <h3>Order Fulfillment Board</h3>
+            <span class="chip chip--info" th:text="${#lists.size(items)} + ' orders'">0 orders</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Recipient</th>
+                        <th>Items</th>
+                        <th>Amounts</th>
+                        <th>Status</th>
+                        <th>Tracking</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="o : ${items}">
+                        <td>
+                            <div class="shipping-table-title">
+                                <div class="cell-mono" th:text="${o.orderReference}">SHIP-REF</div>
+                                <div class="shipping-table-meta" th:text="${o.createdAt == null ? 'Created time unavailable' : 'Created ' + #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm')}">Created 2026-01-01 12:00</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipping-table-title">
+                                <div class="cell-primary" th:text="${o.recipientName}">Recipient Name</div>
+                                <div class="shipping-table-meta" th:text="${o.recipientEmail}">recipient@example.com</div>
+                                <div class="shipping-table-meta" th:text="${#strings.isEmpty(o.recipientPhone) ? 'Phone not supplied' : o.recipientPhone}">Phone not supplied</div>
+                                <div class="shipping-table-meta" th:text="|${o.city}, ${o.country}|">City, Country</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipping-item-list" th:if="${!#lists.isEmpty(o.orderItems)}">
+                                <div class="cell-primary" th:text="${#lists.size(o.orderItems) + ' line item' + (#lists.size(o.orderItems) == 1 ? '' : 's')}">1 line item</div>
+                                <div class="shipping-table-meta" th:each="item : ${o.orderItems}" th:text="${item.quantity + ' x ' + item.productName}">1 x Product</div>
+                            </div>
+                            <div class="shipping-item-list" th:unless="${!#lists.isEmpty(o.orderItems)}">
+                                <div class="cell-primary" th:text="${o.quantity + ' item' + (o.quantity == 1 ? '' : 's')}">1 item</div>
+                                <div class="shipping-table-meta" th:text="${o.product != null ? o.product.name : 'Legacy item reference'}">Product</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipping-table-title">
+                                <div class="cell-primary" th:text="${'$' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 2, 'POINT')}">Total</div>
+                                <div class="shipping-table-meta" th:text="${'Products: $' + #numbers.formatDecimal(o.productTotal, 1, 'COMMA', 2, 'POINT')}">Products</div>
+                                <div class="shipping-table-meta" th:text="${o.shippingCost == null ? 'Shipping not calculated' : 'Shipping: $' + #numbers.formatDecimal(o.shippingCost, 1, 'COMMA', 2, 'POINT')}">Shipping</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipping-status-stack">
+                                <div class="shipping-chip-row">
+                                    <span class="chip" th:data-status="${o.status}" th:text="${o.status}">PENDING</span>
+                                    <span class="chip" th:data-status="${o.paymentStatus}" th:text="${o.paymentStatus}">UNPAID</span>
+                                </div>
+                                <div class="shipping-status-note" th:text="${#strings.isEmpty(o.paymentMethod) ? 'Payment later or manual confirmation path' : 'Payment method: ' + o.paymentMethod}">Payment method note</div>
+                                <div class="shipping-status-note" th:text="${'Carrier: ' + o.carrier}">Carrier</div>
+                                <div class="shipping-status-note" th:if="${!#strings.isEmpty(o.adminNotes)}" th:text="|Current note: ${o.adminNotes}|">Current note</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipping-table-title">
+                                <div class="cell-mono" th:text="${#strings.isEmpty(o.trackingNumber) ? '-' : o.trackingNumber}">-</div>
+                                <div class="shipping-table-meta" th:text="${o.shippedAt == null ? 'Not shipped yet' : 'Shipped ' + #temporals.format(o.shippedAt, 'yyyy-MM-dd HH:mm')}">Not shipped yet</div>
+                                <div class="shipping-table-meta" th:if="${o.deliveredAt != null}" th:text="${'Delivered ' + #temporals.format(o.deliveredAt, 'yyyy-MM-dd HH:mm')}">Delivered</div>
+                            </div>
+                        </td>
+                        <td class="shipping-actions-cell">
+                            <div class="shipping-action-stack">
+                                <form th:action="@{|/admin/ops/shipping-orders/${o.id}/status|}" method="post" class="shipping-action-card">
+                                    <span class="shipping-action-card__label">Fulfillment Update</span>
+                                    <div class="shipping-action-grid">
+                                        <select class="form-select shipping-action-grid__full" name="status" aria-label="Order status">
+                                            <option th:each="s : ${T(com.volcanoartscenter.platform.shared.model.ShippingOrder.OrderStatus).values()}"
+                                                    th:value="${s}" th:text="${s}" th:selected="${s == o.status}">STATUS</option>
+                                        </select>
+                                        <input class="form-input" name="trackingNumber" th:value="${o.trackingNumber}" placeholder="Tracking number" aria-label="Tracking number" />
+                                        <select class="form-select" name="notifyChannel" aria-label="Notification channel">
+                                            <option value="">No notification</option>
+                                            <option value="EMAIL">Email</option>
+                                            <option value="WHATSAPP">WhatsApp</option>
+                                            <option value="BOTH">Email + WhatsApp</option>
+                                        </select>
+                                        <input class="form-input shipping-action-grid__full" name="adminNotes" th:value="${o.adminNotes}" placeholder="Internal fulfillment note" aria-label="Internal fulfillment note" />
+                                        <button class="btn btn--outline shipping-action-grid__full" type="submit">Apply Update</button>
+                                    </div>
+                                    <div class="shipping-action-grid shipping-action-grid--notify">
+                                        <div class="shipping-action-card__hint">Update the order status, keep the tracking number current, and optionally send a customer notification in the same step.</div>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(items)}">
+                        <td colspan="7" class="admin-empty">
+                            <div class="admin-empty__icon">SHIP</div>
+                            <div class="admin-empty__text">No shipping orders</div>
+                            <div class="shipping-empty-note">Checkout orders from the art store will appear here for fulfillment management.</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card" th:if="${!#lists.isEmpty(items)}">
+        <div class="admin-card__header">
+            <h3>Order Update Controls</h3>
+            <span class="chip chip--info">Use this section to edit fulfillment details</span>
+        </div>
+        <div class="admin-card__body">
+            <div class="shipping-editor-grid">
+                <article class="shipping-editor-card" th:each="o : ${items}">
+                    <div class="shipping-editor-card__header">
+                        <div class="shipping-editor-card__title">
+                            <div class="cell-mono" th:text="${o.orderReference}">SHIP-REF</div>
+                            <div class="cell-primary" th:text="${o.recipientName}">Recipient Name</div>
+                            <div class="shipping-editor-card__meta" th:text="${o.recipientEmail}">recipient@example.com</div>
+                        </div>
+                        <div class="shipping-chip-row">
+                            <span class="chip" th:data-status="${o.status}" th:text="${o.status}">PENDING</span>
+                            <span class="chip" th:data-status="${o.paymentStatus}" th:text="${o.paymentStatus}">UNPAID</span>
+                        </div>
+                    </div>
+
+                    <form th:action="@{|/admin/ops/shipping-orders/${o.id}/status|}" method="post" class="shipping-action-card">
+                        <span class="shipping-action-card__label">Fulfillment Update</span>
+                        <div class="shipping-action-grid">
+                            <select class="form-select shipping-action-grid__full" name="status" aria-label="Order status">
+                                <option th:each="s : ${T(com.volcanoartscenter.platform.shared.model.ShippingOrder.OrderStatus).values()}"
+                                        th:value="${s}" th:text="${s}" th:selected="${s == o.status}">STATUS</option>
+                            </select>
+                            <input class="form-input" name="trackingNumber" th:value="${o.trackingNumber}" placeholder="Tracking number" aria-label="Tracking number" />
+                            <select class="form-select" name="notifyChannel" aria-label="Notification channel">
+                                <option value="">No notification</option>
+                                <option value="EMAIL">Email</option>
+                                <option value="WHATSAPP">WhatsApp</option>
+                                <option value="BOTH">Email + WhatsApp</option>
+                            </select>
+                            <input class="form-input shipping-action-grid__full" name="adminNotes" th:value="${o.adminNotes}" placeholder="Internal fulfillment note" aria-label="Internal fulfillment note" />
+                            <button class="btn btn--primary shipping-action-grid__full" type="submit">Apply Update</button>
+                        </div>
+                        <div class="shipping-action-card__hint">Update status, tracking, and internal notes here. Delivery changes can trigger notification and review eligibility behavior.</div>
+                    </form>
+                </article>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

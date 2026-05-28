@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head><title>Client Concierge — Volcano Arts Center</title></head>
+<body>
+<main layout:fragment="content" class="vac-dashboard-shell" style="background:var(--vac-canvas); padding-bottom:6rem;">
+    
+    <!-- Ultra Premium Hero Section -->
+    <section class="vac-role-hero vac-role-hero--admin reveal" style="min-height:52vh; align-items:flex-end;">
+        <img src="/uploads/Home_virunga.png" alt="Volcanoes near Musanze" loading="eager"
+             onerror="this.onerror=null;this.src='/uploads/volcano.jpg';" />
+        <div class="vac-role-hero__overlay" style="background:linear-gradient(170deg, rgba(0,33,19,0.3) 0%, rgba(0,18,10,0.92) 100%);"></div>
+        <div class="vac-role-hero__content" style="width:100%; max-width:1400px; margin:0 auto; padding:3rem 2rem;">
+            <p class="vac-role-hero__kicker" style="font-family:var(--font-body); font-weight:700; letter-spacing:2px; color:var(--g); margin-bottom:1rem; text-transform:uppercase;">Private Client Console &bull; Volcano Arts Center</p>
+            <h1 class="vac-role-hero__title" style="font-size:clamp(3.5rem,9vw,9rem); font-family:var(--font-ui); font-weight:800; letter-spacing:-0.04em; line-height:0.85; text-transform:uppercase;">
+                WELCOME<br><span style="color:var(--vac-gold);" th:text="${user.firstName != null ? user.firstName : 'COLLECTOR'}">COLLECTOR</span>
+            </h1>
+            <p class="vac-role-hero__desc" style="max-width:560px; margin:1.5rem 0 0; font-family:var(--font-body); font-size:1.1rem; line-height:1.6; color:var(--smoke);">Your personal concierge for art curation, exclusive experiences, and conservation impact.</p>
+            <!-- Inline stats strip in hero -->
+            <div class="vac-client-hero-strip">
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${bookings != null ? #lists.size(bookings) : 0}">0</strong>
+                    <span>Experiences Booked</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${orders != null ? #lists.size(orders) : 0}">0</strong>
+                    <span>Art Acquisitions</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${donations != null ? #lists.size(donations) : 0}">0</strong>
+                    <span>Contributions</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${savedItems != null ? #lists.size(savedItems) : 0}">0</strong>
+                    <span>Saved Pieces</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container" style="max-width:1400px; margin-top:-40px; position:relative; z-index:10; padding-bottom:6rem;">
+
+        <div th:if="${successMessage}" style="background:rgba(203,168,106,0.1); border:1px solid var(--vac-gold); border-radius:16px; color:#8a5e10; padding:1.2rem 1.5rem; margin-bottom:2rem; backdrop-filter:blur(10px); font-weight:600; font-family:var(--font-body);" th:text="${successMessage}"></div>
+
+        <!-- Quick Actions Grid -->
+        <section class="reveal" style="margin-bottom:3rem;">
+            <p style="font-family:var(--font-body); font-weight:700; font-size:0.72rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--vac-muted); margin:0 0 1rem;">Quick Access</p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.25rem;">
+                <a th:href="@{/account/messages}" class="vac-action-tile reveal" style="animation-delay:0.1s;">
+                    <i data-lucide="message-square"></i>
+                    <span style="font-family:var(--font-ui); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; color:var(--vac-ink);">Concierge Message</span>
+                </a>
+                <a th:href="@{/art-store}" class="vac-action-tile reveal" style="animation-delay:0.2s;">
+                    <i data-lucide="tag"></i>
+                    <span style="font-family:var(--font-ui); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; color:var(--vac-ink);">Collect New Art</span>
+                </a>
+                <a th:href="@{/experiences}" class="vac-action-tile reveal" style="animation-delay:0.3s;">
+                    <i data-lucide="compass"></i>
+                    <span style="font-family:var(--font-ui); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; color:var(--vac-ink);">Book Experience</span>
+                </a>
+                <a th:href="@{/conservation}" class="vac-action-tile reveal" style="animation-delay:0.4s;">
+                    <i data-lucide="leaf"></i>
+                    <span style="font-family:var(--font-ui); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; color:var(--vac-ink);">Give to Conservation</span>
+                </a>
+                <a th:href="@{/account/notifications}" class="vac-action-tile reveal" style="animation-delay:0.5s;">
+                    <i data-lucide="bell"></i>
+                    <span style="font-family:var(--font-ui); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; color:var(--vac-ink);">Notifications</span>
+                </a>
+            </div>
+        </section>
+
+
+        <!-- Main Dashboard Split Layout -->
+        <div class="vac-dashboard-split reveal" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
+            
+            <!-- Left Column: Activity & Bookings -->
+            <div style="display:flex; flex-direction:column; gap:2rem;">
+                
+                <div class="admin-panel">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h3 class="admin-panel__title">Active Itineraries</h3>
+                        </div>
+                        <a th:href="@{/experiences}" class="btn btn--outline btn--sm">Plan Trip</a>
+                    </div>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Experience</th>
+                                    <th>Reference</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b : ${bookings}">
+                                    <td>
+                                        <strong th:text="${b.experience != null ? b.experience.title : '-'}">Experience</strong>
+                                    </td>
+                                    <td th:text="${b.bookingReference}">REF-12345</td>
+                                    <td>
+                                        <span class="admin-badge admin-badge--active" th:text="${b.status}">PENDING</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(bookings)}">
+                                    <td colspan="3" style="text-align:center; padding:3rem; color:var(--vac-muted);">
+                                        <i data-lucide="calendar" style="width:48px; height:48px; color:var(--vac-line); margin-bottom:1rem;"></i>
+                                        <p>Your itinerary is empty.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h3 class="admin-panel__title">Art Acquisitions</h3>
+                        </div>
+                        <a th:href="@{/art-store}" class="btn btn--outline btn--sm">Gallery</a>
+                    </div>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order Details</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="o : ${orders}">
+                                    <td>
+                                        <strong>Art Order</strong>
+                                        <div style="color:var(--vac-muted); font-size:0.85rem;" th:text="${o.orderReference}">REF</div>
+                                    </td>
+                                    <td>
+                                        <span class="admin-badge admin-badge--active" th:text="${o.status}">STATUS</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(orders)}">
+                                    <td colspan="2" style="text-align:center; padding:3rem; color:var(--vac-muted);">
+                                        <i data-lucide="package" style="width:48px; height:48px; color:var(--vac-line); margin-bottom:1rem;"></i>
+                                        <p>No orders yet.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Profile, Saved, Notifications -->
+            <div style="display:flex; flex-direction:column; gap:2rem;">
+                
+                <div class="admin-panel">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h3 class="admin-panel__title">Client Profile</h3>
+                        </div>
+                    </div>
+                    <div style="padding:2rem;">
+                        <form th:action="@{/client/profile}" method="post">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="firstName" th:value="${user.firstName}" class="form-input" required/>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="lastName" th:value="${user.lastName}" class="form-input" required/>
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">Phone</label>
+                                    <input type="text" name="phone" th:value="${user.phone}" class="form-input" />
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" name="country" th:value="${user.country}" class="form-input" />
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn--primary" style="width:100%;">Save Profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="admin-panel__header">
+                        <div>
+                            <h3 class="admin-panel__title">Curated Wishlist</h3>
+                        </div>
+                        <span style="background:var(--vac-ink); color:#fff; border-radius:999px; padding:0.2rem 0.8rem; font-weight:800; font-size:0.9rem;" th:text="${#lists.size(savedItems)}">0</span>
+                    </div>
+                    <div class="admin-table-container">
+                        <table class="admin-table">
+                            <tbody>
+                                <tr th:each="s : ${savedItems}">
+                                    <td style="display:flex; align-items:center; gap:1rem;">
+                                        <img th:if="${s.product.primaryImageUrl != null}" th:src="${s.product.primaryImageUrl}" alt="" style="width:50px; height:50px; object-fit:cover; border-radius:var(--vac-radius-sm);" />
+                                        <strong th:text="${s.product.name}">Product</strong>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{|/art-store/${s.product.slug}|}" class="btn btn--outline btn--sm">View</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(savedItems)}">
+                                    <td colspan="2" style="text-align:center; padding:3rem; color:var(--vac-muted);">
+                                        <p>No saved pieces yet.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    
+    <style>
+        .vac-premium-action:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+        .vac-premium-action:hover svg {
+            stroke: var(--vac-gold);
+            transform: scale(1.1);
+            transition: all 0.3s ease;
+        }
+    </style>
+</main>
+</body>
+</html>

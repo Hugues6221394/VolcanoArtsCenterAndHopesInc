@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}" />
+    <title layout:title-pattern="$CONTENT_TITLE — Volcano Arts Admin">Admin Panel</title>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}" />
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/vac-overhaul.css}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem('vac-theme');
+                document.documentElement.setAttribute('data-theme',
+                    savedTheme === 'dark' ? 'dark' : 'light');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <th:block layout:fragment="styles"></th:block>
+</head>
+
+<body class="admin-body" th:classappend="${adminPage != null ? ' admin-page--' + adminPage : ' admin-page--generic'}">
+
+    <!-- ── Admin Sidebar ── -->
+    <aside class="admin-sidebar admin-sidebar--premium" id="admin-sidebar">
+        <div class="admin-sidebar__header" style="padding:1.5rem 1.25rem;">
+            <a th:href="@{/}" class="admin-sidebar__logo" style="display:flex; align-items:center; gap:0.875rem; text-decoration:none;">
+                <svg width="40" height="40" viewBox="0 0 1024 430" fill="var(--g)" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                    <path d="M500.5 45L617 190.5L664.5 204L686.5 137L819 238L863 268L892 411H491.5L633 216L500.5 45Z" />
+                    <path d="M410 82L159 292.5L72 355L82.5 411H444.5L343.5 391.5L500.5 220L410 82Z" />
+                    <path d="M260.5 365L296.5 330.5L327.5 344L284 411H252.5L260.5 365Z" />
+                    <path d="M621.5 320.5L658 292.5L686.5 365L645 411H605L621.5 320.5Z" />
+                    <path d="M738 310L773.5 282.5L789.5 320.5L758 375H719.5L738 310Z" />
+                </svg>
+                <div class="admin-sidebar__logo-text" style="display:flex; flex-direction:column; line-height:1.15; min-width:0;">
+                    <span style="font-family:'Syne', sans-serif; font-weight:800; font-size:1.1rem; color:#fff; white-space:nowrap; letter-spacing:0.5px;">Volcano Arts</span>
+                    <span style="font-family:'DM Sans', sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--sand);">Admin Console</span>
+                </div>
+            </a>
+            <button class="admin-sidebar__close" id="sidebar-close" aria-label="Close sidebar" style="color:rgba(255,255,255,0.6); background:none; border:none; font-size:1.2rem; cursor:pointer;">✕</button>
+        </div>
+
+
+        <nav class="admin-sidebar__nav">
+            <!-- Dashboard -->
+            <div class="admin-sidebar__section">
+                <span class="admin-sidebar__section-label">Overview</span>
+                <a th:if="${navContext.superAdmin}" th:href="@{/admin/dashboard}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'dashboard'} ? 'active'">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.dashboardTotal() > 0}"
+                          th:text="${adminActivity.dashboardTotal() > 99 ? '99+' : adminActivity.dashboardTotal()}">0</span>
+                </a>
+                <a th:if="${navContext.contentManager}" th:href="@{/admin/content/dashboard}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'content-dashboard'} ? 'active'">
+                    <i data-lucide="layout-template"></i>
+                    Content Dashboard
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.pendingReviews() > 0}"
+                          th:text="${adminActivity.pendingReviews() > 99 ? '99+' : adminActivity.pendingReviews()}">0</span>
+                </a>
+                <a th:if="${navContext.opsManager}" th:href="@{/admin/ops/dashboard}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'ops-dashboard'} ? 'active'">
+                    <i data-lucide="briefcase"></i>
+                    Operations Dashboard
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.dashboardTotal() > 0}"
+                          th:text="${adminActivity.dashboardTotal() > 99 ? '99+' : adminActivity.dashboardTotal()}">0</span>
+                </a>
+            </div>
+
+            <!-- Content -->
+            <div class="admin-sidebar__section" th:if="${navContext.superAdmin or navContext.contentManager}">
+                <span class="admin-sidebar__section-label">Content</span>
+                <a th:href="@{/admin/content/products}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'products'} ? 'active'">
+                    <i data-lucide="palette"></i>
+                    Art Catalog
+                </a>
+                <a th:href="@{/admin/content/experiences}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'experiences'} ? 'active'">
+                    <i data-lucide="map"></i>
+                    Experiences
+                </a>
+                <a th:href="@{/admin/content/blog-posts}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'blog-posts'} ? 'active'">
+                    <i data-lucide="feather"></i>
+                    Blog Posts
+                </a>
+                <a th:href="@{/admin/content/reviews}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'reviews'} ? 'active'">
+                    <i data-lucide="star"></i>
+                    Reviews
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.pendingReviews() > 0}"
+                          th:text="${adminActivity.pendingReviews() > 99 ? '99+' : adminActivity.pendingReviews()}">0</span>
+                </a>
+                <a th:href="@{/admin/content/testimonials}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'testimonials'} ? 'active'">
+                    <i data-lucide="message-square-quote"></i>
+                    Testimonials
+                </a>
+                <a th:href="@{/admin/content/talent-showcase}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'talent-showcase'} ? 'active'">
+                    <i data-lucide="sparkles"></i>
+                    Talent Showcase
+                </a>
+                <a th:href="@{/admin/content/media-library}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'media-library'} ? 'active'">
+                    <i data-lucide="image"></i>
+                    Media Library
+                </a>
+            </div>
+
+            <!-- Operations -->
+            <div class="admin-sidebar__section" th:if="${navContext.superAdmin or navContext.opsManager}">
+                <span class="admin-sidebar__section-label">Operations</span>
+                <a th:href="@{/admin/ops/bookings}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'bookings'} ? 'active'">
+                    <i data-lucide="calendar-check"></i>
+                    Bookings
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.pendingBookings() > 0}"
+                          th:text="${adminActivity.pendingBookings() > 99 ? '99+' : adminActivity.pendingBookings()}">0</span>
+                </a>
+                <a th:href="@{/admin/ops/shipping-orders}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'shipping-orders'} ? 'active'">
+                    <i data-lucide="package"></i>
+                    Shipping Orders
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.pendingOrders() > 0}"
+                          th:text="${adminActivity.pendingOrders() > 99 ? '99+' : adminActivity.pendingOrders()}">0</span>
+                </a>
+                <a th:href="@{/admin/ops/contact-inquiries}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'contact-inquiries'} ? 'active'">
+                    <i data-lucide="mail"></i>
+                    Contact Inquiries
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.openInquiries() > 0}"
+                          th:text="${adminActivity.openInquiries() > 99 ? '99+' : adminActivity.openInquiries()}">0</span>
+                </a>
+                <a th:href="@{/admin/ops/operator-requests}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'operator-requests'} ? 'active'">
+                    <i data-lucide="users"></i>
+                    Tour Operator Requests
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.openOperatorRequests() > 0}"
+                          th:text="${adminActivity.openOperatorRequests() > 99 ? '99+' : adminActivity.openOperatorRequests()}">0</span>
+                </a>
+                <a th:href="@{/admin/ops/talent-applications}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'talent-applications'} ? 'active'">
+                    <i data-lucide="file-text"></i>
+                    Talent Applications
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.pendingTalentApplications() > 0}"
+                          th:text="${adminActivity.pendingTalentApplications() > 99 ? '99+' : adminActivity.pendingTalentApplications()}">0</span>
+                </a>
+                <a th:href="@{/admin/ops/availability-slots}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'availability-slots'} ? 'active'">
+                    <i data-lucide="clock"></i>
+                    Availability Slots
+                </a>
+                <a th:href="@{/admin/ops/donations}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'donations'} ? 'active'">
+                    <i data-lucide="heart"></i>
+                    Donations
+                </a>
+                <a th:if="${navContext.superAdmin}" th:href="@{/admin/conservation-campaigns}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'campaigns'} ? 'active'">
+                    <i data-lucide="leaf"></i>
+                    Conservation Campaigns
+                </a>
+            </div>
+
+            <!-- Communication -->
+            <div class="admin-sidebar__section" th:if="${navContext.superAdmin or navContext.contentManager or navContext.opsManager}">
+                <span class="admin-sidebar__section-label">Communication</span>
+                <a th:href="@{/admin/messages}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'messages'} ? 'active'">
+                    <i data-lucide="message-square"></i>
+                    Live Messages
+                    <span class="admin-sidebar__badge"
+                          th:if="${adminActivity != null and adminActivity.awaitingStaffMessages() > 0}"
+                          th:text="${adminActivity.awaitingStaffMessages() > 99 ? '99+' : adminActivity.awaitingStaffMessages()}">0</span>
+                </a>
+                <a th:href="@{/account/notifications}" class="admin-sidebar__link">
+                    <i data-lucide="bell"></i>
+                    Notification Center
+                    <span class="admin-sidebar__badge"
+                          th:if="${notificationSummary != null and notificationSummary.unread > 0}"
+                          th:text="${notificationSummary.unread > 99 ? '99+' : notificationSummary.unread}">0</span>
+                </a>
+            </div>
+
+            <!-- Admin Only -->
+            <div class="admin-sidebar__section" th:if="${navContext.superAdmin}">
+                <span class="admin-sidebar__section-label">Administration</span>
+                <a th:href="@{/admin/users}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'users'} ? 'active'">
+                    <i data-lucide="shield"></i>
+                    Staff &amp; Accounts
+                </a>
+                <a th:href="@{/admin/settings}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'settings'} ? 'active'">
+                    <i data-lucide="settings"></i>
+                    Platform Settings
+                </a>
+                <a th:href="@{/admin/audit-log}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'audit-log'} ? 'active'">
+                    <i data-lucide="activity"></i>
+                    Audit Log
+                </a>
+                <a th:href="@{/admin/overrides}" class="admin-sidebar__link"
+                    th:classappend="${adminPage == 'overrides'} ? 'active'">
+                    <i data-lucide="alert-triangle"></i>
+                    Overrides &amp; Refunds
+                </a>
+                <a th:href="@{/admin/export}" class="admin-sidebar__link" target="_blank">
+                    <i data-lucide="download-cloud"></i>
+                    Export Data
+                </a>
+            </div>
+        </nav>
+
+        <div class="admin-sidebar__footer" style="padding:1rem; border-top:1px solid rgba(255,255,255,0.1); margin-top:auto;">
+            <a th:href="@{/}" class="admin-sidebar__link" style="margin-bottom:4px;">
+                <i data-lucide="globe"></i>
+                View Public Site
+            </a>
+            <form th:action="@{/logout}" method="post" class="admin-sidebar__logout" style="margin:0;">
+                <button type="submit" class="admin-sidebar__link admin-sidebar__link--logout" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; color:rgba(255,100,80,0.8);">
+                    <i data-lucide="log-out"></i>
+                    Sign Out
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ── Admin Main Content ── -->
+    <div class="admin-main" id="admin-main">
+        <!-- Topbar -->
+        <header class="admin-topbar admin-topbar--premium">
+            <div class="admin-topbar__left" style="display:flex; align-items:center; gap:1rem;">
+                <button class="admin-topbar__toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="admin-topbar__breadcrumb" layout:fragment="breadcrumb">
+                    <span>Admin</span>
+                </div>
+            </div>
+            <div class="admin-topbar__search">
+                <i data-lucide="search"></i>
+                <input type="search" placeholder="Search orders, bookings, donations…" disabled />
+            </div>
+            <div class="admin-topbar__right" style="display:flex; align-items:center; gap:1rem;">
+                <details class="admin-notif-center" th:if="${navContext.authenticated}">
+                    <summary aria-label="Notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="admin-notif-center__badge" id="admin-bell-badge"
+                              th:if="${notificationSummary != null and notificationSummary.unread > 0}"
+                              th:text="${notificationSummary.unread > 99 ? '99+' : notificationSummary.unread}">0</span>
+                    </summary>
+                    <div class="admin-notif-center__panel">
+                        <a class="admin-notif-center__item"
+                           th:each="n : ${notificationSummary != null ? notificationSummary.recent : {}}"
+                           th:href="${n.ctaUrl != null ? n.ctaUrl : '/account/notifications'}"
+                           th:classappend="${n.unread} ? ' is-unread'">
+                            <div>
+                                <strong th:text="${n.title}">Notification</strong>
+                                <p th:text="${n.body}">Message</p>
+                            </div>
+                            <time th:text="${n.createdAt != null ? #temporals.format(n.createdAt, 'MMM d, HH:mm') : ''}"></time>
+                        </a>
+                        <p th:if="${notificationSummary == null or #lists.isEmpty(notificationSummary.recent)}" class="admin-notif-center__empty">
+                            NO NEW NOTIFICATIONS.
+                        </p>
+                        <a class="admin-notif-center__all" th:href="@{/account/notifications}">OPEN NOTIFICATION CENTER →</a>
+                    </div>
+                </details>
+                <div class="admin-topbar__user" style="display:flex; align-items:center; gap:.7rem;">
+                    <div class="admin-topbar__avatar"
+                         style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--vac-green), var(--vac-green-700)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-heading); font-weight:800; font-size:0.95rem; flex-shrink:0;"
+                         th:text="${navContext.roleLabel != null ? navContext.roleLabel.substring(0,1) : 'A'}">A</div>
+                    <div class="admin-topbar__user-info" style="display:flex; flex-direction:column; line-height:1.2;">
+                        <span class="admin-topbar__user-name" style="font-family:var(--font-body); font-weight:700; font-size:0.9rem; color:var(--vac-ink);"
+                            th:text="${navContext.userName != null ? navContext.userName : 'Admin'}">Admin</span>
+                        <span class="admin-topbar__user-role" style="font-family:var(--font-body); font-size:0.7rem; font-weight:600; letter-spacing:0.5px; color:var(--vac-muted); text-transform:uppercase;" th:text="${navContext.roleLabel}">Super Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Toast container -->
+        <div class="admin-toast-container" id="admin-toast-container"></div>
+
+        <!-- Page content -->
+        <div class="admin-content">
+            <main layout:fragment="content">
+                <!-- Page content injected here -->
+            </main>
+        </div>
+    </div>
+
+    <!-- ── Modal overlay ── -->
+    <div class="admin-modal-overlay" id="admin-modal-overlay" style="display:none;" onclick="closeModal()">
+        <div class="admin-modal" id="admin-modal" onclick="event.stopPropagation()">
+            <div class="admin-modal__header">
+                <h3 class="admin-modal__title" id="admin-modal-title">Modal</h3>
+                <button class="admin-modal__close" onclick="closeModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="admin-modal__body" id="admin-modal-body">
+                <!-- Dynamic modal content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Motion One -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/admin.js}"></script>
+    <script th:src="@{/js/vac-overhaul.js}"></script>
+    <!-- Pass flash messages to JS -->
+    <script th:if="${successMessage}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(/*[[${successMessage}]]*/ '', 'success');
+        });
+    </script>
+    <script th:if="${errorMessage}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(/*[[${errorMessage}]]*/ '', 'error');
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/admin-charts.js}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            lucide.createIcons();
+        });
+    </script>
+    <th:block layout:fragment="scripts"></th:block>
+</body>
+
+</html>

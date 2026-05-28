@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Live Messages</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="${navContext.dashboardUrl}">Dashboard</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Live Messages</span>
+</th:block>
+
+<main layout:fragment="content" class="vac-admin-command vac-admin-messages-page">
+    <section class="vac-command-hero reveal">
+        <div class="vac-command-hero__media">
+            <img src="/uploads/arts page 2.jpg" alt="Admin live messages" loading="eager"
+                 onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+        </div>
+        <div class="vac-command-hero__shade"></div>
+        <div class="vac-command-hero__content">
+            <p>Staff inbox / client support / gallery conversations</p>
+            <h1>Live Messages</h1>
+            <span>Prioritize buyer questions, shipping follow-ups, and experience support from one staff inbox.</span>
+        </div>
+        <div class="vac-command-hero__stats">
+            <div><strong class="vac-count-up" th:attr="data-value=${awaitingStaffCount}" th:text="${awaitingStaffCount}">0</strong><span>Awaiting staff</span></div>
+            <div><strong class="vac-count-up" th:attr="data-value=${conversations != null ? #lists.size(conversations) : 0}" th:text="${conversations != null ? #lists.size(conversations) : 0}">0</strong><span>Visible threads</span></div>
+        </div>
+    </section>
+
+    <section class="vac-command-panel">
+        <div class="vac-command-panel__head">
+            <div>
+                <p>Inbox filters</p>
+                <h2>Conversation queue</h2>
+            </div>
+            <div class="vac-filter-pills">
+                <a th:href="@{/admin/messages(openOnly=true)}" th:classappend="${openOnly} ? ' is-active'">Open</a>
+                <a th:href="@{/admin/messages(openOnly=false)}" th:classappend="${!openOnly} ? ' is-active'">All</a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(conversations)}" class="vac-empty-panel">
+            <h3>No conversations to show</h3>
+            <p>Client and buyer questions will appear here as they arrive.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(conversations)}" class="vac-message-list">
+            <a th:each="c : ${conversations}" th:href="@{|/admin/messages/${c.id}|}" class="vac-message-row">
+                <span class="vac-message-row__avatar">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+                </span>
+                <span class="vac-message-row__body">
+                    <span class="vac-message-row__meta">
+                        <em th:text="${c.status}">STATUS</em>
+                        <span th:text="${openerNames[c.openedByUserId] ?: 'Unknown client'}">Client</span>
+                        <time th:text="${#temporals.format(c.lastMessageAt, 'd MMM yyyy, HH:mm')}">date</time>
+                    </span>
+                    <strong th:text="${c.subject}">Subject</strong>
+                    <small th:if="${c.productId != null and productNames[c.productId] != null}" th:text="${'Artwork: ' + productNames[c.productId]}">Artwork</small>
+                    <small th:unless="${c.productId != null and productNames[c.productId] != null}">General support thread</small>
+                </span>
+                <span class="vac-message-row__arrow">Respond</span>
+            </a>
+        </div>
+
+        <div th:if="${hasPrev or hasNext}" class="vac-pagination">
+            <a th:if="${hasPrev}" th:href="@{/admin/messages(page=${page - 1}, openOnly=${openOnly})}" class="btn btn--outline btn--sm">Newer</a>
+            <a th:if="${hasNext}" th:href="@{/admin/messages(page=${page + 1}, openOnly=${openOnly})}" class="btn btn--outline btn--sm">Older</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

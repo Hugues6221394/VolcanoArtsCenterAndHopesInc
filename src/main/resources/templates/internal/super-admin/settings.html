@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Platform Settings</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">›</span>
+    <span>Platform Settings</span>
+</th:block>
+<main layout:fragment="content">
+
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Platform Settings</h1>
+            <p>Configure payment gateways, integrations, and platform parameters.</p>
+        </div>
+    </div>
+
+    <!-- Add Setting Form -->
+    <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card__header">
+            <h3>Add / Update Setting</h3>
+        </div>
+        <div class="admin-card__body">
+            <form th:action="@{/admin/settings}" method="post" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" required>
+                            <option value="PAYMENT">PAYMENT</option>
+                            <option value="INTEGRATION">INTEGRATION</option>
+                            <option value="PLATFORM">PLATFORM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Key</label>
+                        <input class="form-input" name="keyName" placeholder="e.g. STRIPE_SECRET_KEY" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Value</label>
+                        <input class="form-input" name="valueData" placeholder="Setting value" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input class="form-input" name="description" placeholder="What this setting does" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><input type="checkbox" name="masked" /> Mask value (sensitive data)</label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn--primary btn--sm" type="submit">Save Setting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Tables -->
+    <div class="admin-grid-3" style="margin-bottom:1.5rem;">
+        <div class="admin-card">
+            <div class="admin-card__header"><h3>💳 Payment</h3></div>
+            <div class="admin-card__body--flush">
+                <table class="admin-table">
+                    <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                    <tbody>
+                    <tr th:each="s : ${paymentSettings}">
+                        <td class="cell-mono" th:text="${s.keyName}">KEY</td>
+                        <td th:text="${s.masked ? '••••••••' : s.valueData}">VALUE</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(paymentSettings)}"><td colspan="2" style="text-align:center; color:var(--color-gray-500); padding:1.5rem;">No payment settings configured</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card__header"><h3>🔗 Integrations</h3></div>
+            <div class="admin-card__body--flush">
+                <table class="admin-table">
+                    <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                    <tbody>
+                    <tr th:each="s : ${integrationSettings}">
+                        <td class="cell-mono" th:text="${s.keyName}">KEY</td>
+                        <td th:text="${s.masked ? '••••••••' : s.valueData}">VALUE</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(integrationSettings)}"><td colspan="2" style="text-align:center; color:var(--color-gray-500); padding:1.5rem;">No integration settings configured</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="admin-card">
+            <div class="admin-card__header"><h3>⚙️ Platform</h3></div>
+            <div class="admin-card__body--flush">
+                <table class="admin-table">
+                    <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                    <tbody>
+                    <tr th:each="s : ${platformSettings}">
+                        <td class="cell-mono" th:text="${s.keyName}">KEY</td>
+                        <td th:text="${s.masked ? '••••••••' : s.valueData}">VALUE</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(platformSettings)}"><td colspan="2" style="text-align:center; color:var(--color-gray-500); padding:1.5rem;">No platform settings configured</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

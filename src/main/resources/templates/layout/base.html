@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- SEO -->
+    <title layout:title-pattern="$CONTENT_TITLE — Volcano Arts Center">Volcano Arts Center</title>
+    <meta name="description" th:content="${metaDescription != null ? metaDescription : 'Experience Rwanda through Arts, Culture, and People. Volcano Arts Center Inc — your gateway to authentic community-based tourism near Volcanoes National Park.'}" />
+    <meta name="author" content="Volcano Arts Center Inc" />
+    <meta name="theme-color" content="#00A259" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Volcano Arts Center" />
+    <meta property="og:title" th:content="${pageTitle != null ? pageTitle : 'Volcano Arts Center — Art & Community Based Tourism'}" />
+    <meta property="og:description" th:content="${metaDescription != null ? metaDescription : 'Experience Rwanda through Arts, Culture, and People.'}" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}" />
+
+    <!-- CSRF -->
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/vac-overhaul.css}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,700;1,300&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Light theme is the default. Persisted preference via localStorage still wins. -->
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem('vac-theme');
+                document.documentElement.setAttribute('data-theme',
+                    savedTheme === 'dark' ? 'dark' : 'light');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
+    <!-- Page-specific styles -->
+    <th:block layout:fragment="styles"></th:block>
+</head>
+<body th:class="${currentPage != null ? 'vac-page vac-page--' + currentPage : 'vac-page vac-page--generic'}"
+      th:attr="data-authenticated=${navContext.authenticated}">
+
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- ── Simplified Navigation ── -->
+    <nav class="nav nav--premium site-nav" id="main-nav" th:classappend="${#strings.equals(currentPage, 'home')} ? ' nav--home' : ' nav--solid'">
+        <div class="nav__inner site-nav__inner">
+            <a href="/" class="logo logo--brand" th:href="@{/}">
+                <img class="logo-image" th:src="@{/images/volcano-logo.png}" alt="Volcano Arts Center logo" width="48" height="48" loading="eager" />
+                <div class="logo-text">
+                    <div class="logo-name">VOLCANO ARTS</div>
+                    <div class="logo-sub">Center Inc · Rwanda</div>
+                </div>
+            </a>
+
+            <ul class="nav__links nav-links" id="nav-links">
+                <li><a class="nav-link" th:href="@{/}" th:classappend="${#strings.equals(currentPage, 'home')} ? 'active'">Home</a></li>
+
+                <li class="nav-item nav-item--mega">
+                    <a class="nav-link" th:href="@{/art-store}" th:classappend="${#strings.equals(currentPage, 'art-store')} ? 'active'">Shop</a>
+                    <div class="nav-mega">
+                        <div class="nav-mega__panel nav-mega__panel--grid">
+                            <p class="nav-mega__title">Explore the Art Store</p>
+                            <div class="nav-mega__cards">
+                                <a class="nav-mega__card" th:href="@{/art-store}">
+                                    <img src="/uploads/arthomepage.jpeg" alt="All artworks" loading="lazy" />
+                                    <div><h4>All Artworks</h4><p>Browse the full premium collection.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/art-store(category='visual-arts')}">
+                                    <img src="/uploads/art-gallery-interior.jpeg" alt="Visual arts" loading="lazy" />
+                                    <div><h4>Visual Arts</h4><p>Paintings, portraits, and mixed media.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/art-store(category='handicrafts')}">
+                                    <img src="/uploads/arthomepage2.jpeg" alt="Handicrafts" loading="lazy" />
+                                    <div><h4>Handicrafts</h4><p>Authentic cultural craft objects.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/art-store(minPrice=0,maxPrice=200)}">
+                                    <img src="/uploads/530932243590381348.jpeg" alt="Affordable art" loading="lazy" />
+                                    <div><h4>Affordable Picks</h4><p>Collector-friendly pieces under $200.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/talent}">
+                                    <img src="/uploads/talent-portrait.jpeg" alt="Meet artists" loading="lazy" />
+                                    <div><h4>Meet the Artists</h4><p>See creators behind the collections.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/contact}">
+                                    <img src="/uploads/4600427105964790400.jpeg" alt="Commission art" loading="lazy" />
+                                    <div><h4>Commissions</h4><p>Request custom pieces for your space.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item nav-item--mega">
+                    <a class="nav-link" th:href="@{/experiences}" th:classappend="${#strings.equals(currentPage, 'experiences')} ? 'active'">Experiences</a>
+                    <div class="nav-mega">
+                        <div class="nav-mega__panel nav-mega__panel--grid">
+                            <p class="nav-mega__title">Tours &amp; Journeys</p>
+                            <div class="nav-mega__cards">
+                                <a class="nav-mega__card" th:href="@{/experiences}">
+                                    <img src="/uploads/experiences-bisoke.jpeg" alt="All journeys" loading="lazy" />
+                                    <div><h4>All Journeys</h4><p>See every curated route and package.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/experiences(category='CULTURAL')}">
+                                    <img src="/uploads/experiences-village.jpeg" alt="Cultural tours" loading="lazy" />
+                                    <div><h4>Cultural Tours</h4><p>Village stories, dance, and traditions.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/experiences(category='CONSERVATION')}">
+                                    <img src="/uploads/wildlife-gorillas.jpeg" alt="Wildlife routes" loading="lazy" />
+                                    <div><h4>Wildlife Routes</h4><p>Gorilla and savanna experiences.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/experiences(category='VILLAGE')}">
+                                    <img src="/uploads/experiences-waterfall.jpeg" alt="Nature adventures" loading="lazy" />
+                                    <div><h4>Nature Adventures</h4><p>Waterfalls, crater lakes, and hikes.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/experiences(category='CUSTOM')}">
+                                    <img src="/uploads/___1_.jpeg" alt="Custom itineraries" loading="lazy" />
+                                    <div><h4>Custom Itineraries</h4><p>Tailored plans for groups and families.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/contact}">
+                                    <img src="/uploads/884324076848170852.jpeg" alt="Plan with team" loading="lazy" />
+                                    <div><h4>Plan with Our Team</h4><p>Get direct itinerary support.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item nav-item--mega">
+                    <a class="nav-link" th:href="@{/conservation}" th:classappend="${#strings.equals(currentPage, 'conservation')} ? 'active'">Conservation</a>
+                    <div class="nav-mega">
+                        <div class="nav-mega__panel nav-mega__panel--grid">
+                            <p class="nav-mega__title">Protect &amp; Give</p>
+                            <div class="nav-mega__cards">
+                                <a class="nav-mega__card" th:href="@{/conservation}">
+                                    <img src="/uploads/conservationhomepage.jpeg" alt="Overview" loading="lazy" />
+                                    <div><h4>Program Overview</h4><p>See impact priorities and outcomes.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/conservation#projects}">
+                                    <img src="/uploads/conservation-planting.jpeg" alt="Projects" loading="lazy" />
+                                    <div><h4>Active Projects</h4><p>Tree planting and habitat restoration.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/conservation#donate}">
+                                    <img src="/uploads/conservation.jpeg" alt="Donate" loading="lazy" />
+                                    <div><h4>Donate Now</h4><p>Fund campaigns with transparent goals.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/conservation#projects}">
+                                    <img src="/uploads/wildlife-gorillas.jpeg" alt="Wildlife protection" loading="lazy" />
+                                    <div><h4>Wildlife Protection</h4><p>Support biodiversity near the park.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/conservation3.jpg" alt="Impact stories" loading="lazy" />
+                                    <div><h4>Impact Stories</h4><p>Read updates from field programs.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/conservation#projects}">
+                                    <img src="/uploads/conservation-planting.jpeg" alt="Track progress" loading="lazy" />
+                                    <div><h4>Track Progress</h4><p>Follow your support over time.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item nav-item--mega">
+                    <a class="nav-link" th:href="@{/blog}" th:classappend="${#strings.equals(currentPage, 'blog')} ? 'active'">Blog &amp; Stories</a>
+                    <div class="nav-mega">
+                        <div class="nav-mega__panel nav-mega__panel--grid">
+                            <p class="nav-mega__title">The Journal</p>
+                            <div class="nav-mega__cards">
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/blog-talent-bg.jpeg" alt="Latest stories" loading="lazy" />
+                                    <div><h4>Latest Stories</h4><p>New posts from Musanze and beyond.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/experiences-village.jpeg" alt="Travel insights" loading="lazy" />
+                                    <div><h4>Travel Insights</h4><p>Planning tips for your Rwanda journey.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/16184879907687165.jpeg" alt="Culture stories" loading="lazy" />
+                                    <div><h4>Culture &amp; Heritage</h4><p>Stories of art, dance, and identity.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/4600427105964790400.jpeg" alt="Artist features" loading="lazy" />
+                                    <div><h4>Artist Features</h4><p>Meet creators shaping the platform.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/blog}">
+                                    <img src="/uploads/conservationhomepage.jpeg" alt="Conservation updates" loading="lazy" />
+                                    <div><h4>Conservation Updates</h4><p>How community action protects nature.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/contact}">
+                                    <img src="/uploads/727472146099993210.jpeg" alt="Share story" loading="lazy" />
+                                    <div><h4>Share Your Story</h4><p>Pitch guest stories and collaborations.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item nav-item--mega">
+                    <a class="nav-link" th:href="@{/talent}" th:classappend="${#strings.equals(currentPage, 'talent')} ? 'active'">Talent</a>
+                    <div class="nav-mega">
+                        <div class="nav-mega__panel nav-mega__panel--grid">
+                            <p class="nav-mega__title">Talent Program</p>
+                            <div class="nav-mega__cards">
+                                <a class="nav-mega__card" th:href="@{/talent}">
+                                    <img src="/uploads/blog-talent-bg.jpeg" alt="Program overview" loading="lazy" />
+                                    <div><h4>Program Overview</h4><p>Understand the full talent pathway.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/talent/register}">
+                                    <img src="/uploads/talent-portrait.jpeg" alt="Apply now" loading="lazy" />
+                                    <div><h4>Apply Now</h4><p>Submit your profile and creative goals.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/talent#profiles}">
+                                    <img src="/uploads/talent-silhouette.jpeg" alt="Featured talent" loading="lazy" />
+                                    <div><h4>Featured Talent</h4><p>Discover artists on the platform.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/art-store}">
+                                    <img src="/uploads/art-layered-sculpture.jpeg" alt="Market access" loading="lazy" />
+                                    <div><h4>Market Access</h4><p>Pathways into the global art store.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/talent}">
+                                    <img src="/uploads/Media and dance 2.jpg" alt="Mentorship" loading="lazy" />
+                                    <div><h4>Mentorship &amp; Media</h4><p>Guidance, exposure, and collaboration.</p></div>
+                                </a>
+                                <a class="nav-mega__card" th:href="@{/contact}">
+                                    <img src="/uploads/talent-tree-art.jpeg" alt="Partnerships" loading="lazy" />
+                                    <div><h4>Partnerships</h4><p>Book talent for projects and events.</p></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="nav__cta nav-actions">
+                <a th:if="${navContext.authenticated}"
+                   th:href="${navContext.superAdmin or navContext.contentManager or navContext.opsManager ? '/admin/messages' : '/account/messages'}"
+                   class="nav-icon nav-icon-btn" aria-label="Messages">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="nav-badge nav-badge--count" id="messages-badge"
+                          th:if="${unreadMessageCount != null and unreadMessageCount > 0}"
+                          th:text="${unreadMessageCount > 9 ? '9+' : unreadMessageCount}"></span>
+                </a>
+                <a th:if="${!navContext.authenticated}" th:href="@{/contact#live-chat}" data-open-chat class="nav-icon nav-icon-btn" aria-label="Live chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </a>
+
+                <div th:if="${navContext.authenticated}" class="bell" id="bell">
+                    <button type="button" id="bell-trigger" class="nav-icon nav-icon-btn bell__btn" aria-label="Notifications" aria-expanded="false">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span id="bell-dot" class="nav-badge nav-badge--count"
+                              th:if="${notificationSummary != null and notificationSummary.unread > 0}"
+                              th:text="${notificationSummary.unread > 9 ? '9+' : notificationSummary.unread}"></span>
+                    </button>
+                    <div id="bell-dropdown" class="bell__panel" hidden>
+                        <div class="bell__panel-head">
+                            <span class="bell__panel-title">Notifications <span id="bell-unread-count" style="color:var(--ash); font-weight:400;"
+                                th:if="${notificationSummary != null and notificationSummary.unread > 0}"
+                                th:text="'(' + ${notificationSummary.unread} + ' new)'"></span></span>
+                            <button type="button" class="bell__mark-all" id="bell-mark-all">Mark all read</button>
+                        </div>
+                        <div class="bell__filters" id="bell-filters">
+                            <button type="button" class="bell__filter is-active" data-filter="all">All</button>
+                            <button type="button" class="bell__filter" data-filter="orders">Orders</button>
+                            <button type="button" class="bell__filter" data-filter="bookings">Bookings</button>
+                            <button type="button" class="bell__filter" data-filter="messages">Messages</button>
+                        </div>
+                        <div class="bell__list" id="bell-list">
+                            <div th:if="${notificationSummary == null or #lists.isEmpty(notificationSummary.recent)}" class="bell__empty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                <p class="bell__empty-title">You're all caught up.</p>
+                                <p class="bell__empty-sub">New activity will show up here.</p>
+                            </div>
+                            <div th:each="n : ${notificationSummary != null ? notificationSummary.recent : {}}"
+                                 th:classappend="${n.unread} ? ' is-unread'"
+                                 th:attr="data-notif-type=${n.category != null ? #strings.toLowerCase(n.category) : 'system'}"
+                                 class="notif-item">
+                                <span class="notif-item__dot"></span>
+                                <div class="notif-item__icon notif-item__icon--system">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+                                </div>
+                                <div class="notif-item__content">
+                                    <p class="notif-item__title" th:text="${n.title}">Title</p>
+                                    <p class="notif-item__body" th:text="${n.body}">Body</p>
+                                    <span class="notif-item__time" th:text="${n.createdAt != null ? #temporals.format(n.createdAt, 'MMM d, HH:mm') : ''}"></span>
+                                </div>
+                                <a th:href="${n.ctaUrl != null ? n.ctaUrl : '/account/notifications'}" class="bell__mark-all" style="align-self:start;">View →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a th:if="${!navContext.authenticated}" th:href="@{/login}" class="btn-signin">Sign In</a>
+
+                <button type="button" class="nav-icon nav-icon-btn" id="cart-trigger" aria-label="Cart" data-cart-open>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span class="nav-badge" id="cart-dot" hidden></span>
+                </button>
+                <a th:if="${navContext.registeredClient}" th:href="@{/client/dashboard}" class="btn-signin">My Account</a>
+                <form th:if="${navContext.registeredClient}" th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn-signin">Logout</button>
+                </form>
+
+                <a th:if="${navContext.authenticated and !navContext.registeredClient}" th:href="${navContext.dashboardUrl}" class="btn-signin" th:text="${navContext.roleLabel}">Dashboard</a>
+                <form th:if="${navContext.authenticated and !navContext.registeredClient}" th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn-signin" style="background:transparent; color:var(--white); border: 1px solid var(--stone);">Logout</button>
+                </form>
+            </div>
+
+            <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── Main Content ── -->
+    <main id="main-content" layout:fragment="content">
+        <!-- Page content injected here -->
+    </main>
+
+    <!-- ── Simple Footer Bar ── -->
+    <footer class="site-footer">
+        <div class="site-footer__scroll-down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="site-footer__bar">
+            <p>© 2026 <a href="/" class="footer-brand">Volcano Arts Center Inc Rwanda</a> · volcanoartsandhospes.com · Built by CODAFRIQA</p>
+        </div>
+    </footer>
+
+    <!-- ── Cart drawer (slide-in from right) ── -->
+    <div class="cart-drawer__overlay" id="cart-overlay" data-cart-close></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping cart" aria-hidden="true">
+        <div class="cart-drawer__head">
+            <h3>Your cart <span class="cart-drawer__count" id="cart-count">(0)</span></h3>
+            <button type="button" class="cart-drawer__close" data-cart-close aria-label="Close cart">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="cart-drawer__body" id="cart-body">
+            <div class="cart-drawer__empty" id="cart-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20l5-8 4 6 5-9 4 11"/><path d="M2 20h20"/></svg>
+                <h4 class="cart-drawer__empty-title">Your cart is empty.</h4>
+                <p class="cart-drawer__empty-sub">Browse the collection — every piece ships from Musanze.</p>
+                <a th:href="@{/art-store}" class="btn btn--primary btn--sm" data-cart-close>Browse artworks</a>
+            </div>
+            <div id="cart-items" hidden></div>
+        </div>
+        <div class="cart-drawer__foot" id="cart-foot" hidden>
+            <div class="cart-drawer__subtotal">
+                <span>Subtotal</span>
+                <span class="cart-drawer__total" id="cart-total">$0.00</span>
+            </div>
+            <p class="cart-drawer__shipping">International shipping via FedEx, calculated at checkout.</p>
+            <a th:href="@{/cart}" class="btn btn--primary cart-drawer__checkout">
+                Proceed to checkout
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── Chat hub (floating panel) ── -->
+    <button type="button" class="chat-fab" id="chat-fab" aria-label="Chat with our team">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="chat-fab__dot" id="chat-fab-dot" hidden></span>
+    </button>
+    <div class="chat-panel" id="chat-panel" role="dialog" aria-label="Chat with Volcano Arts">
+        <header class="chat-panel__head">
+            <div class="chat-panel__avatar">V</div>
+            <div class="chat-panel__title-block">
+                <p class="chat-panel__title">Volcano Arts Support</p>
+                <span class="chat-panel__status">Typically replies in under 2 hours</span>
+            </div>
+            <button type="button" class="chat-panel__close" id="chat-close" aria-label="Close chat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </header>
+
+        <!-- Pre-chat form for guests -->
+        <form class="chat-prechat" id="chat-prechat" th:if="${!navContext.authenticated}" onsubmit="event.preventDefault();">
+            <p class="chat-prechat__intro">Hi! Tell us a bit about you so we can help faster.</p>
+            <div class="chat-prechat__field">
+                <label for="chat-name">Name</label>
+                <input type="text" id="chat-name" name="name" required maxlength="80" />
+            </div>
+            <div class="chat-prechat__field">
+                <label for="chat-email">Email</label>
+                <input type="email" id="chat-email" name="email" required maxlength="120" />
+            </div>
+            <div class="chat-prechat__field">
+                <label for="chat-topic">What can we help with?</label>
+                <select id="chat-topic" name="topic">
+                    <option value="ART">Art inquiry</option>
+                    <option value="BOOKING">Tour / experience booking</option>
+                    <option value="CONSERVATION">Conservation</option>
+                    <option value="GENERAL">General question</option>
+                </select>
+            </div>
+            <div class="chat-prechat__field">
+                <label for="chat-msg">Your message</label>
+                <textarea id="chat-msg" name="message" minlength="10" maxlength="800" required></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary">Start conversation</button>
+        </form>
+
+        <!-- Active conversation -->
+        <div class="chat-panel__body" id="chat-body" th:attr="data-authenticated=${navContext.authenticated}">
+            <div class="chat-msg chat-msg--in">
+                Hello — welcome to Volcano Arts Center. How can we help today?
+                <span class="chat-msg__time">Now</span>
+            </div>
+        </div>
+        <form class="chat-panel__form" id="chat-form" onsubmit="event.preventDefault();">
+            <button type="button" class="chat-panel__attach" aria-label="Attach file" tabindex="-1">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <input type="text" class="chat-panel__input" id="chat-input" placeholder="Type a message…" maxlength="1000" autocomplete="off" />
+            <button type="submit" class="chat-panel__send" aria-label="Send message" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </form>
+    </div>
+
+    <!-- ── Toast stack ── -->
+    <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Mobile-only WhatsApp float (V2 spec) -->
+    <a href="https://wa.me/250788000000" class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+
+    <!-- Motion One (vanilla-JS animation lib by the Framer Motion team) -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/vac-overhaul.js}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            lucide.createIcons();
+        });
+    </script>
+    <th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

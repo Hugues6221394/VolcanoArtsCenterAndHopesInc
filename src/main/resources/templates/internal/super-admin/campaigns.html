@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+
+<head>
+    <title>Conservation Campaigns</title>
+</head>
+
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">›</span>
+    <span>Conservation Campaigns</span>
+</th:block>
+
+<main layout:fragment="content">
+    <section class="vac-role-hero vac-role-hero--admin reveal" style="min-height:30vh;">
+        <img src="/uploads/conservation2.png" alt="Conservation backdrop" loading="eager" onerror="this.onerror=null;this.src='/uploads/conservation3.jpg';" />
+        <div class="vac-role-hero__overlay"></div>
+        <div class="vac-role-hero__content">
+            <p class="vac-role-hero__kicker">CONSERVATION • CAMPAIGNS • IMPACT</p>
+            <h1 class="vac-role-hero__title">CAMPAIGNS</h1>
+            <p class="vac-role-hero__desc">Create, edit, and manage conservation donation campaigns that appear on the public Conservation page.</p>
+        </div>
+    </section>
+
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Conservation Campaigns</h1>
+            <p th:text="${campaigns != null ? #lists.size(campaigns) + ' campaigns total' : '0 campaigns'}">0 campaigns</p>
+        </div>
+        <div class="admin-page-header__actions">
+            <button class="btn btn--primary btn--sm" onclick="document.getElementById('create-form').style.display = document.getElementById('create-form').style.display === 'none' ? 'block' : 'none';">+ New Campaign</button>
+        </div>
+    </div>
+
+    <!-- Create form (hidden by default) -->
+    <div id="create-form" style="display:none; margin-bottom:2rem;">
+        <div class="admin-panel" style="padding:2rem;">
+            <h3 class="admin-panel__title" style="margin-bottom:1rem;">Create New Campaign</h3>
+            <form th:action="@{/admin/conservation-campaigns}" method="post" enctype="multipart/form-data" style="display:grid; gap:1rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Campaign Name *</label>
+                        <input class="form-input" name="name" required="required" placeholder="e.g. Reforestation Drive 2026" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Goal Amount ($)</label>
+                        <input class="form-input" name="goalAmount" type="number" step="0.01" placeholder="e.g. 10000" />
+                    </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" name="description" rows="3" placeholder="Describe the campaign purpose and goals..."></textarea>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label">Impact Statement</label>
+                    <input class="form-input" name="impactStatement" placeholder="e.g. $25 plants 5 trees in the Volcanoes buffer zone" />
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Upload Image (from device)</label>
+                        <input type="file" class="form-input" name="imageFile" accept="image/*" required />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="active">
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <button type="submit" class="btn btn--primary btn--sm">Create Campaign</button>
+                    <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('create-form').style.display='none';">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Campaign grid -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.5rem;">
+        <div class="vac-campaign-card" th:each="c : ${campaigns}">
+            <div class="vac-campaign-card__img"
+                 th:style="${c.imageUrl != null ? 'background-image:url(' + c.imageUrl + ')' : 'background-image:url(/uploads/conservation3.jpg)'}">
+                <span th:if="${c.active}"
+                      style="position:absolute; top:12px; right:12px; background:var(--vac-green); color:#fff; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">Active</span>
+                <span th:unless="${c.active}"
+                      style="position:absolute; top:12px; right:12px; background:#e74c3c; color:#fff; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">Inactive</span>
+            </div>
+            <div class="vac-campaign-card__body">
+                <h3 style="font-family:var(--font-display); margin:0 0 0.5rem;" th:text="${c.name}">Campaign Name</h3>
+                <p th:if="${c.description}" style="color:var(--vac-muted, #888); font-size:0.9rem; line-height:1.5; margin:0 0 0.75rem;" th:text="${c.description}">Description</p>
+                <p th:if="${c.impactStatement}" style="color:var(--vac-gold); font-weight:700; font-size:0.85rem; margin:0 0 0.5rem;" th:text="${c.impactStatement}">Impact</p>
+                <div th:if="${c.goalAmount != null}" style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--vac-muted);">
+                    <span>Raised: <strong th:text="'$' + ${#numbers.formatDecimal(c.raisedAmount != null ? c.raisedAmount : 0, 1, 2)}">$0</strong></span>
+                    <span>Goal: <strong th:text="'$' + ${#numbers.formatDecimal(c.goalAmount, 1, 2)}">$0</strong></span>
+                </div>
+                <div th:if="${c.goalAmount != null}" class="vac-campaign-progress">
+                    <div class="vac-campaign-progress__fill"
+                         th:style="'width:' + ${c.goalAmount.doubleValue() > 0 ? ((c.raisedAmount != null ? c.raisedAmount.doubleValue() : 0) / c.goalAmount.doubleValue() * 100) : 0} + '%'"></div>
+                </div>
+
+                <!-- Inline Edit (hidden) -->
+                <details style="margin-top:1rem;">
+                    <summary style="cursor:pointer; color:var(--vac-green); font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">Edit / Delete</summary>
+                    <form th:action="@{|/admin/conservation-campaigns/${c.id}/update|}" method="post" enctype="multipart/form-data" style="margin-top:1rem; display:grid; gap:0.75rem;">
+                        <input class="form-input" name="name" th:value="${c.name}" required="required" />
+                        <textarea class="form-textarea" name="description" rows="2" th:text="${c.description}"></textarea>
+                        <input class="form-input" name="impactStatement" th:value="${c.impactStatement}" placeholder="Impact statement" />
+                        <div style="display:grid; grid-template-columns:1fr; gap:0.75rem;">
+                            <input class="form-input" name="goalAmount" type="number" step="0.01" th:value="${c.goalAmount}" placeholder="Goal" />
+                            <label class="form-label" style="font-size:0.75rem;">Update Image (Optional)</label>
+                            <input type="file" class="form-input" name="imageFile" accept="image/*" />
+                        </div>
+                        <select class="form-select" name="active">
+                            <option value="true" th:selected="${c.active}">Active</option>
+                            <option value="false" th:selected="${!c.active}">Inactive</option>
+                        </select>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button type="submit" class="btn btn--primary btn--sm">Save</button>
+                        </div>
+                    </form>
+                    <form th:action="@{|/admin/conservation-campaigns/${c.id}/delete|}" method="post" style="margin-top:0.5rem;">
+                        <button type="submit" class="btn btn--outline btn--sm" style="color:#e74c3c; border-color:#e74c3c;" onclick="return confirm('Delete this campaign permanently?');">Delete Campaign</button>
+                    </form>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${campaigns == null or #lists.isEmpty(campaigns)}" style="padding:4rem 2rem; text-align:center; color:var(--color-gray-500);">
+        <p style="font-size:1.2rem; margin-bottom:1rem;">No conservation campaigns yet.</p>
+        <button class="btn btn--primary btn--sm" onclick="document.getElementById('create-form').style.display='block';">Create Your First Campaign</button>
+    </div>
+</main>
+</body>
+</html>

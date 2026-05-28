@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Talent Showcase</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">></span><span>Talent Showcase</span></th:block>
+<th:block layout:fragment="styles">
+    <style>
+        .talent-board {
+            display: grid;
+            gap: 1.35rem;
+        }
+        .talent-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .talent-summary-card {
+            padding: 1.15rem 1.2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+        }
+        .talent-summary-card__label {
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-size: .78rem;
+            margin-bottom: .45rem;
+        }
+        .talent-summary-card__value {
+            font-size: 2.05rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .talent-summary-card__meta {
+            margin-top: .65rem;
+            color: var(--color-gray-400);
+            font-size: .92rem;
+        }
+        .talent-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .talent-card {
+            padding: 1.25rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.02);
+            display: grid;
+            gap: 1rem;
+        }
+        .talent-card__row {
+            display: grid;
+            grid-template-columns: 90px 1.2fr .9fr .9fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+        .talent-card__preview {
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-500);
+            font-weight: 700;
+        }
+        .talent-card__preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .talent-card__name {
+            margin: 0 0 .3rem;
+            font-size: 1.15rem;
+        }
+        .talent-card__subline {
+            margin: 0;
+            color: var(--color-gray-500);
+        }
+        .talent-card__actions {
+            display: flex;
+            gap: .55rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .talent-edit-shell {
+            display: none;
+            padding-top: .2rem;
+        }
+        .talent-edit-shell.is-open {
+            display: block;
+        }
+        .talent-confirm {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.66);
+            backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 60;
+        }
+        .talent-confirm.is-open {
+            display: flex;
+        }
+        .talent-confirm__dialog {
+            width: min(520px, 100%);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(20,20,20,.98), rgba(12,12,12,.96));
+            box-shadow: 0 30px 80px rgba(0,0,0,.45);
+            padding: 1.5rem;
+        }
+        .talent-confirm__eyebrow {
+            color: var(--color-primary-light);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            font-size: .72rem;
+            margin-bottom: .8rem;
+        }
+        .talent-confirm__title {
+            margin: 0 0 .6rem;
+            font-size: 1.5rem;
+        }
+        .talent-confirm__copy {
+            color: var(--color-gray-400);
+            line-height: 1.65;
+            margin-bottom: 1.2rem;
+        }
+        .talent-confirm__asset {
+            padding: .95rem 1rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.06);
+            color: var(--color-gray-100);
+            margin-bottom: 1.2rem;
+            word-break: break-word;
+        }
+        .talent-confirm__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 1100px) {
+            .talent-card__row {
+                grid-template-columns: 90px 1fr;
+            }
+            .talent-card__actions {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</th:block>
+<main layout:fragment="content">
+    <div class="talent-board">
+        <div class="admin-page-header">
+            <div class="admin-page-header__info">
+                <h1>Talent Showcase</h1>
+                <p>Manage featured artist and artisan profiles that appear on the public talent page.</p>
+            </div>
+            <div class="admin-page-header__actions">
+                <button class="btn btn--primary btn--sm" type="button" onclick="toggleTalentCreate()">Add Profile</button>
+            </div>
+        </div>
+
+        <section class="talent-summary">
+            <article class="talent-summary-card">
+                <div class="talent-summary-card__label">All Profiles</div>
+                <div class="talent-summary-card__value" th:text="${#lists.size(items)}">0</div>
+                <div class="talent-summary-card__meta">Everything currently stored in the talent showcase manager.</div>
+            </article>
+            <article class="talent-summary-card">
+                <div class="talent-summary-card__label">Published</div>
+                <div class="talent-summary-card__value" th:text="${items.?[published].size()}">0</div>
+                <div class="talent-summary-card__meta">Profiles visible to the public talent page.</div>
+            </article>
+            <article class="talent-summary-card">
+                <div class="talent-summary-card__label">Draft</div>
+                <div class="talent-summary-card__value" th:text="${items.?[!published].size()}">0</div>
+                <div class="talent-summary-card__meta">Profiles kept inside admin until they are ready to show publicly.</div>
+            </article>
+        </section>
+
+        <div class="admin-card" id="create-talent" style="display:none;">
+            <div class="admin-card__header"><h3>Create Talent Profile</h3></div>
+            <div class="admin-card__body">
+                <form th:action="@{/admin/content/talent-showcase}" method="post" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" name="displayName" required /></div>
+                        <div class="form-group"><label class="form-label">Category</label><select class="form-select" name="category"><option th:each="c : ${categories}" th:value="${c}" th:text="${c}">CAT</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Headline</label><input class="form-input" name="headline" /></div>
+                        <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" name="primaryImageUrl" /></div>
+                    </div>
+                    <div class="form-row--full"><div class="form-group"><label class="form-label">Story</label><textarea class="form-input" name="story" rows="4"></textarea></div></div>
+                    <div><label><input type="checkbox" name="published" /> Published</label></div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline btn--sm" onclick="toggleTalentCreate()">Cancel</button>
+                        <button type="submit" class="btn btn--primary btn--sm">Create Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__header">
+                <h3>All Profiles</h3>
+                <span class="chip chip--info" th:text="${#lists.size(items)} + ' profiles'">0 profiles</span>
+            </div>
+            <div class="admin-card__body">
+                <div th:if="${#lists.isEmpty(items)}" class="admin-empty">
+                    <div class="admin-empty__icon">*</div>
+                    <div class="admin-empty__text">No talent profiles yet</div>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(items)}" class="talent-list">
+                    <article th:each="t : ${items}" class="talent-card">
+                        <div class="talent-card__row">
+                            <div class="talent-card__preview">
+                                <img th:if="${t.primaryImageUrl != null and !#strings.isEmpty(t.primaryImageUrl)}" th:src="${t.primaryImageUrl}" alt="" onerror="this.style.display='none'; this.parentElement.textContent='TALENT';" />
+                                <span th:if="${t.primaryImageUrl == null or #strings.isEmpty(t.primaryImageUrl)}">TALENT</span>
+                            </div>
+                            <div>
+                                <h4 class="talent-card__name" th:text="${t.displayName}">Name</h4>
+                                <p class="talent-card__subline" th:text="${t.story != null and !#strings.isEmpty(t.story) ? t.story : 'Story not provided yet.'}">Story</p>
+                            </div>
+                            <div>
+                                <span class="chip chip--primary" th:text="${t.category}">YOUTH</span>
+                            </div>
+                            <div>
+                                <strong th:text="${t.headline != null and !#strings.isEmpty(t.headline) ? t.headline : 'No headline yet'}">Headline</strong>
+                            </div>
+                            <div class="talent-card__actions">
+                                <span class="chip" th:data-status="${t.published ? 'PUBLISHED' : 'DRAFT'}" th:text="${t.published ? 'Published' : 'Draft'}">Draft</span>
+                                <button class="btn btn--outline btn--sm" type="button" th:onclick="|toggleTalentEdit(${t.id})|">Edit</button>
+                                <form th:id="'delete-talent-' + ${t.id}" th:action="@{|/admin/content/talent-showcase/${t.id}/delete|}" method="post" style="margin:0;">
+                                    <button class="btn btn--ghost btn--sm" type="button" th:attr="data-title=${t.displayName}" th:onclick="|openTalentDeleteModal(${t.id}, this.getAttribute('data-title'))|">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div th:id="'edit-tp-' + ${t.id}" class="talent-edit-shell">
+                            <form th:action="@{|/admin/content/talent-showcase/${t.id}/update|}" method="post" class="modal-form">
+                                <div class="form-row">
+                                    <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" name="displayName" th:value="${t.displayName}" required /></div>
+                                    <div class="form-group"><label class="form-label">Category</label><select class="form-select" name="category"><option th:each="c : ${categories}" th:value="${c}" th:text="${c}" th:selected="${c == t.category}">CAT</option></select></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label class="form-label">Headline</label><input class="form-input" name="headline" th:value="${t.headline}" /></div>
+                                    <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" name="primaryImageUrl" th:value="${t.primaryImageUrl}" /></div>
+                                </div>
+                                <div class="form-row--full"><div class="form-group"><label class="form-label">Story</label><textarea class="form-input" name="story" rows="4" th:text="${t.story}"></textarea></div></div>
+                                <div><label><input type="checkbox" name="published" th:checked="${t.published}" /> Published</label></div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn--outline btn--sm" th:onclick="|toggleTalentEdit(${t.id})|">Close</button>
+                                    <button class="btn btn--primary btn--sm" type="submit">Save Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="talent-delete-modal" class="talent-confirm" aria-hidden="true">
+        <div class="talent-confirm__dialog">
+            <div class="talent-confirm__eyebrow">Delete Profile</div>
+            <h3 class="talent-confirm__title">Remove this talent profile?</h3>
+            <p class="talent-confirm__copy">This deletes the profile from the talent showcase manager and removes it from the public talent page immediately.</p>
+            <div class="talent-confirm__asset" id="talent-delete-name">Profile name</div>
+            <div class="talent-confirm__actions">
+                <button type="button" class="btn btn--outline btn--sm" onclick="closeTalentDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn--primary btn--sm" onclick="confirmTalentDelete()">Delete Profile</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+    <script>
+        let talentDeleteFormId = null;
+
+        function toggleTalentCreate() {
+            const section = document.getElementById('create-talent');
+            if (!section) return;
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleTalentEdit(id) {
+            const shell = document.getElementById('edit-tp-' + id);
+            if (!shell) return;
+            shell.classList.toggle('is-open');
+        }
+
+        function openTalentDeleteModal(id, title) {
+            talentDeleteFormId = 'delete-talent-' + id;
+            document.getElementById('talent-delete-name').textContent = title || 'Unnamed profile';
+            document.getElementById('talent-delete-modal').classList.add('is-open');
+            document.getElementById('talent-delete-modal').setAttribute('aria-hidden', 'false');
+        }
+
+        function closeTalentDeleteModal() {
+            talentDeleteFormId = null;
+            document.getElementById('talent-delete-modal').classList.remove('is-open');
+            document.getElementById('talent-delete-modal').setAttribute('aria-hidden', 'true');
+        }
+
+        function confirmTalentDelete() {
+            if (!talentDeleteFormId) return;
+            const form = document.getElementById(talentDeleteFormId);
+            if (form) {
+                form.submit();
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeTalentDeleteModal();
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

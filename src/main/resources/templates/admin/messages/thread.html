@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title th:text="${conversation.subject}">Conversation</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/messages}">Live Messages</a>
+    <span class="sep">&rsaquo;</span>
+    <span th:text="${conversation.subject}">Thread</span>
+</th:block>
+
+<main layout:fragment="content" class="vac-admin-command vac-admin-thread-page">
+    <section class="vac-command-panel">
+        <div class="vac-thread-card__head">
+            <div>
+                <p th:text="${opener != null ? opener.email : 'Unknown client'}">client@email.com</p>
+                <h1 th:text="${conversation.subject}">Subject</h1>
+                <span th:if="${product != null}">Artwork: <a th:href="@{|/art-store/${product.slug}|}" th:text="${product.name}">Artwork</a></span>
+            </div>
+            <div class="vac-thread-actions">
+                <a th:href="@{/admin/messages}" class="btn btn--outline btn--sm">Back to inbox</a>
+                <form th:if="${conversation.status.name() != 'RESOLVED'}" th:action="@{|/admin/messages/${conversation.id}/resolve|}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn--ghost btn--sm">Mark resolved</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${errorMessage}" class="vac-form-alert is-error" th:text="${errorMessage}"></div>
+
+        <div class="vac-chat-stream">
+            <article th:each="m : ${messages}" class="vac-chat-bubble"
+                     th:classappend="${m.senderRole.name() == 'STAFF'} ? ' is-me' : ' is-staff'">
+                <div class="vac-chat-bubble__meta">
+                    <strong th:text="${m.senderRole.name() == 'STAFF' ? 'You / Staff' : (senderNames[m.senderUserId] != null ? senderNames[m.senderUserId] : 'Client')}">Sender</strong>
+                    <span th:text="${m.senderRole}">ROLE</span>
+                    <time th:text="${#temporals.format(m.createdAt, 'd MMM yyyy, HH:mm')}">date</time>
+                </div>
+                <p th:text="${m.body}">Body</p>
+            </article>
+        </div>
+
+        <form th:if="${conversation.status.name() != 'RESOLVED'}"
+              th:action="@{|/admin/messages/${conversation.id}/reply|}" method="post"
+              class="vac-reply-card">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label>Reply as staff</label>
+            <textarea name="body" required rows="5" maxlength="4000" placeholder="Type a clear, helpful reply..."></textarea>
+            <button type="submit" class="btn btn--primary">Send reply</button>
+        </form>
+
+        <div th:if="${conversation.status.name() == 'RESOLVED'}" class="vac-empty-panel">
+            <h3>Resolved</h3>
+            <p>A new client response will reopen the conversation.</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

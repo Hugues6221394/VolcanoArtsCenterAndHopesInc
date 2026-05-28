@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Bookings</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Bookings</span>
+</th:block>
+
+<th:block layout:fragment="styles">
+    <style>
+        .bookings-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .bookings-summary-card {
+            padding: 1.1rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(16, 21, 19, 0.98), rgba(9, 14, 12, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .bookings-summary-card__label {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .bookings-summary-card__value {
+            margin-top: 0.45rem;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .bookings-summary-card__meta {
+            margin-top: 0.55rem;
+            color: var(--color-gray-400);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .bookings-table-title {
+            display: grid;
+            gap: 0.28rem;
+        }
+
+        .bookings-table-title .cell-primary {
+            font-size: 0.98rem;
+        }
+
+        .bookings-table-meta {
+            color: var(--color-gray-500);
+            font-size: 0.76rem;
+            line-height: 1.45;
+        }
+
+        .bookings-status-stack {
+            display: grid;
+            gap: 0.4rem;
+        }
+
+        .bookings-chip-row {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .bookings-status-note {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            line-height: 1.4;
+        }
+
+        .bookings-action-stack {
+            display: grid;
+            gap: 0.55rem;
+            min-width: 360px;
+        }
+
+        .bookings-action-card {
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .bookings-action-card__label {
+            display: block;
+            margin-bottom: 0.45rem;
+            color: var(--color-gray-500);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .bookings-action-grid {
+            display: grid;
+            grid-template-columns: minmax(150px, 1fr) minmax(135px, 1fr) auto;
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        .bookings-action-grid--notify {
+            grid-template-columns: minmax(140px, 0.9fr) minmax(170px, 1.1fr);
+            margin-top: 0.55rem;
+        }
+
+        .bookings-action-grid .form-select,
+        .bookings-action-grid .form-input {
+            padding: 0.58rem 0.7rem;
+            min-height: 2.7rem;
+        }
+
+        .bookings-action-grid .btn {
+            min-height: 2.7rem;
+            padding: 0.62rem 0.95rem;
+            font-weight: 700;
+        }
+
+        .bookings-empty-note {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1150px) {
+            .bookings-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 820px) {
+            .bookings-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bookings-action-stack {
+                min-width: 0;
+            }
+
+            .bookings-action-grid,
+            .bookings-action-grid--notify {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</th:block>
+
+<main layout:fragment="content">
+    <section class="vac-role-hero vac-role-hero--admin reveal">
+        <img src="/uploads/Home_wildlife.png" alt="Wildlife operations backdrop" loading="eager" onerror="this.onerror=null;this.src='/uploads/conservation2.png';" />
+        <div class="vac-role-hero__overlay"></div>
+        <div class="vac-role-hero__content">
+            <p class="vac-role-hero__kicker">OPERATIONS HUB • BOOKINGS • GUEST JOURNEYS</p>
+            <h1 class="vac-role-hero__title">BOOKING OPERATIONS BOARD</h1>
+            <p class="vac-role-hero__desc">Coordinate guest timelines, approvals, and payment follow-ups with high-clarity workflows.</p>
+        </div>
+    </section>
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Bookings</h1>
+            <p>Run booking operations from one place, confirm guest requests clearly, and keep status changes tied to notes and notification intent.</p>
+        </div>
+    </div>
+
+    <div class="admin-kpi-grid" style="grid-template-columns:repeat(4,1fr);">
+        <a class="admin-kpi" th:href="@{/admin/ops/bookings}">
+            <div class="admin-kpi__label">Total Bookings</div>
+            <div class="admin-kpi__value" th:text="${totalBookings}">0</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/shipping-orders}">
+            <div class="admin-kpi__label">Shipping Orders</div>
+            <div class="admin-kpi__value" th:text="${totalOrders}">0</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/contact-inquiries}">
+            <div class="admin-kpi__label">Inquiries</div>
+            <div class="admin-kpi__value" th:text="${totalInquiries}">0</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/talent-applications}">
+            <div class="admin-kpi__label">Pending Talent Apps</div>
+            <div class="admin-kpi__value" th:text="${pendingTalentApplications}">0</div>
+        </a>
+    </div>
+
+    <div class="bookings-summary-grid">
+        <article class="bookings-summary-card">
+            <div class="bookings-summary-card__label">Pending Review</div>
+            <div class="bookings-summary-card__value" th:text="${pendingBookingsCount}">0</div>
+            <div class="bookings-summary-card__meta">Requests still waiting on an operations decision.</div>
+        </article>
+        <article class="bookings-summary-card">
+            <div class="bookings-summary-card__label">Confirmed</div>
+            <div class="bookings-summary-card__value" th:text="${confirmedBookingsCount}">0</div>
+            <div class="bookings-summary-card__meta">Accepted future bookings with active guest commitments.</div>
+        </article>
+        <article class="bookings-summary-card">
+            <div class="bookings-summary-card__label">Completed</div>
+            <div class="bookings-summary-card__value" th:text="${completedBookingsCount}">0</div>
+            <div class="bookings-summary-card__meta">Experiences already delivered and ready for review workflows.</div>
+        </article>
+        <article class="bookings-summary-card">
+            <div class="bookings-summary-card__label">Unpaid</div>
+            <div class="bookings-summary-card__value" th:text="${unpaidBookingsCount}">0</div>
+            <div class="bookings-summary-card__meta">Bookings that still need payment follow-up or manual collection.</div>
+        </article>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card__header">
+            <h3>Booking Operations Board</h3>
+            <span class="chip chip--info" th:text="${#lists.size(items)} + ' bookings'">0 bookings</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Guest</th>
+                        <th>Experience</th>
+                        <th>Date</th>
+                        <th>Group</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="b : ${items}">
+                        <td>
+                            <div class="bookings-table-title">
+                                <div class="cell-mono" th:text="${b.bookingReference}">BOOK-REF</div>
+                                <div class="bookings-table-meta"
+                                     th:text="${b.createdAt == null ? 'Created time unavailable' : 'Created ' + #temporals.format(b.createdAt, 'yyyy-MM-dd HH:mm')}">
+                                    Created 2026-01-01 12:00
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-table-title">
+                                <div class="cell-primary" th:text="${b.guestName}">Guest Name</div>
+                                <div class="bookings-table-meta" th:text="${b.guestEmail}">guest@example.com</div>
+                                <div class="bookings-table-meta" th:text="${#strings.isEmpty(b.guestPhone) ? 'Phone not supplied' : b.guestPhone}">Phone not supplied</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-table-title">
+                                <div class="cell-primary" th:text="${bookingExperienceTitles[b.id]}">Experience Title</div>
+                                <div class="bookings-table-meta" th:text="${#strings.isEmpty(b.preferredLanguage) ? 'Language not specified' : 'Language: ' + b.preferredLanguage}">Language: English</div>
+                                <div class="bookings-table-meta" th:if="${!#strings.isEmpty(b.tourOperatorName)}" th:text="|Operator: ${b.tourOperatorName}|">Operator: Partner</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-table-title">
+                                <div class="cell-primary" th:text="${#temporals.format(b.preferredDate, 'yyyy-MM-dd')}">2026-01-01</div>
+                                <div class="bookings-table-meta" th:text="${b.alternativeDate == null ? 'No backup date set' : 'Alternate: ' + #temporals.format(b.alternativeDate, 'yyyy-MM-dd')}">No backup date set</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-table-title">
+                                <div class="cell-primary" th:text="${b.groupSize + ' guest' + (b.groupSize == 1 ? '' : 's')}">1 guest</div>
+                                <div class="bookings-table-meta" th:text="${b.totalPrice == null ? 'Total price not calculated' : 'Total: $' + #numbers.formatDecimal(b.totalPrice, 1, 'COMMA', 2, 'POINT')}">Total: $45.00</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-status-stack">
+                                <div class="bookings-chip-row">
+                                    <span class="chip" th:data-status="${b.status}" th:text="${b.status}">PENDING</span>
+                                    <span class="chip" th:data-status="${b.paymentStatus}" th:text="${b.paymentStatus}">UNPAID</span>
+                                </div>
+                                <div class="bookings-status-note" th:text="${#strings.isEmpty(b.paymentMethod) ? 'Payment later or manual confirmation path' : 'Payment method: ' + b.paymentMethod}">Payment later or manual confirmation path</div>
+                                <div class="bookings-status-note" th:if="${!#strings.isEmpty(b.adminNotes)}" th:text="|Current note: ${b.adminNotes}|">Current note</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bookings-action-stack">
+                                <form th:action="@{|/admin/ops/bookings/${b.id}/status|}" method="post" class="bookings-action-card">
+                                    <span class="bookings-action-card__label">Booking Status</span>
+                                    <div class="bookings-action-grid">
+                                        <select class="form-select" name="status">
+                                            <option th:each="s : ${bookingStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == b.status}">STATUS</option>
+                                        </select>
+                                        <input class="form-input" name="adminNotes" th:value="${b.adminNotes}" placeholder="Internal note for ops follow-up" />
+                                        <button class="btn btn--outline btn--sm" type="submit">Apply</button>
+                                    </div>
+                                    <div class="bookings-action-grid bookings-action-grid--notify">
+                                        <select class="form-select" name="notifyChannel">
+                                            <option value="">No notification</option>
+                                            <option value="EMAIL">Email</option>
+                                            <option value="WHATSAPP">WhatsApp</option>
+                                            <option value="BOTH">Email + WhatsApp</option>
+                                        </select>
+                                        <div class="bookings-status-note">Cancel releases capacity. Reopening a cancelled booking reserves the date again if space still exists.</div>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(items)}">
+                        <td colspan="7" class="admin-empty">
+                            <div class="admin-empty__icon">BOOK</div>
+                            <div class="admin-empty__text">No bookings yet</div>
+                            <div class="bookings-empty-note">New experience requests will appear here for confirmation, completion, or cancellation.</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+    <title>Contact Us</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <section class="hero-golden hero-golden--compact hero-golden--contact hero-golden--fitted vac-cinematic-hero reveal">
+        <div class="hero-golden__bg vac-cinematic-hero__bg">
+            <img class="hero-slide active vac-cinematic-hero__img" src="/uploads/wildlifehome.jpeg" alt="Rwandan landscape at golden hour"
+                 onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+            <img class="hero-slide vac-cinematic-hero__img" src="/uploads/experiences-bisoke.jpeg" alt="Volcanoes National Park region" />
+            <div class="hero-golden__veil vac-cinematic-hero__veil vac-cinematic-hero__veil--light"></div>
+        </div>
+        <div class="hero-golden__content">
+            <p class="hero-golden__kicker">Get in Touch · Musanze, Rwanda</p>
+            <h1 class="hero-golden__title hero-golden__title--compact">Talk to a real person.</h1>
+            <div class="hero-golden__bottom">
+                <p class="hero-golden__sub">Whether you have booking questions, art inquiries, or partnership proposals, our team in Musanze is ready to help you discover the magic of Rwanda.</p>
+                <div class="hero-golden__actions">
+                    <a href="#live-chat" class="btn-hero-primary">Send a Message</a>
+                    <a href="https://wa.me/250788000000" target="_blank" rel="noopener" class="btn-hero-outline">WhatsApp Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vac-focus-band reveal">
+        <div class="container">
+            <div class="vac-focus-band__head">
+                <p class="vac-focus-band__eyebrow">Contact Pathways</p>
+                <h2>Get the right support channel in seconds.</h2>
+                <p>We improved communication clarity so travelers, buyers, and partners can immediately choose the correct path.</p>
+            </div>
+            <div class="vac-focus-grid vac-focus-grid--three">
+                <a class="vac-focus-card" href="#live-chat" data-open-chat>
+                    <span class="vac-focus-card__label">FASTEST</span>
+                    <h3>Live Messaging</h3>
+                    <p>Best for urgent booking and itinerary questions during operating hours.</p>
+                </a>
+                <a class="vac-focus-card" th:href="@{/tour-operators/request}">
+                    <span class="vac-focus-card__label">B2B</span>
+                    <h3>Tour Operator Requests</h3>
+                    <p>Send structured group and partnership requests with the right context.</p>
+                </a>
+                <a class="vac-focus-card" th:href="@{/register}">
+                    <span class="vac-focus-card__label">ACCOUNT</span>
+                    <h3>Create Account &amp; Track</h3>
+                    <p>Register to follow replies, notifications, bookings, orders, and support updates.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Body ─────────────────────────────────────────────────── -->
+    <section class="section" id="live-chat">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items:start;">
+
+                <!-- Contact form ─── -->
+                <div class="reveal">
+                    <span class="section-label">Send a message</span>
+                    <h2 class="section-title" style="margin-top:.6rem;">We'd love to hear from you.</h2>
+                    <p class="section-subtitle" style="margin-bottom:2rem;">Fill in the form and we'll get back to you. For urgent booking requests, WhatsApp is fastest.</p>
+
+                    <div th:if="${successMessage}" class="alert-success"
+                         style="margin-bottom:1rem;" th:text="${successMessage}"></div>
+
+                    <form th:action="@{/contact}" method="post"
+                          style="background:var(--white); border:1px solid var(--color-line); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:1.25rem;">
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="field">
+                                <label class="form-label" for="contact-name">Full name</label>
+                                <input class="form-input" type="text" id="contact-name" name="name" placeholder="Your name" required />
+                            </div>
+                            <div class="field">
+                                <label class="form-label" for="contact-email">Email</label>
+                                <input class="form-input" type="email" id="contact-email" name="email" placeholder="you@example.com" required />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label" for="contact-phone">Phone (optional)</label>
+                            <input class="form-input" type="tel" id="contact-phone" name="phone" placeholder="+250 xxx xxx xxx" />
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label" for="contact-subject">What's this about?</label>
+                            <select class="form-input" id="contact-subject" name="subject" required>
+                                <option value="">Select a topic…</option>
+                                <option value="experience">Book an experience</option>
+                                <option value="art">Art inquiry / purchase</option>
+                                <option value="partnership">Partnership opportunity</option>
+                                <option value="conservation">Conservation / donations</option>
+                                <option value="talent">Talent program</option>
+                                <option value="tour-operator">Tour operator inquiry</option>
+                                <option value="general">General question</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label" for="contact-message">Your message</label>
+                            <textarea class="form-input" id="contact-message" name="message" placeholder="Tell us how we can help…" rows="5" required></textarea>
+                        </div>
+
+                        <input type="hidden" name="captchaToken" />
+                        <button type="submit" class="btn btn--primary" style="align-self:flex-start;">Send message</button>
+                    </form>
+                </div>
+
+                <!-- Contact info ─── -->
+                <div class="reveal">
+                    <span class="section-label">Visit us</span>
+                    <h2 class="section-title" style="margin-top:.6rem;">Two hours from Kigali.</h2>
+                    <p class="section-subtitle">We're on Kinigi Road in Musanze, a short drive from the entrance to Volcanoes National Park. Drop by during a trek or arrange a meeting in advance.</p>
+
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-top:2rem;">
+
+                        <!-- Location -->
+                        <div style="display: flex; gap: 1rem; align-items: flex-start; padding:1.25rem; background:var(--white); border:1px solid var(--color-line); border-radius:var(--radius-md);">
+                            <div style="width:40px; height:40px; flex-shrink:0; background:var(--green-tint); color:var(--green-dark); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h4 style="font-family:var(--font-ui); font-size:.7rem; letter-spacing:var(--track-wide); text-transform:uppercase; color:var(--ash); margin:0 0 .35rem;">Our location</h4>
+                                <p style="color:var(--charcoal); font-size:.95rem; line-height:1.6; margin:0;">
+                                    Musanze, Kinigi Road<br>
+                                    Near Volcanoes National Park<br>
+                                    Northern Province, Rwanda
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div style="display: flex; gap: 1rem; align-items: flex-start; padding:1.25rem; background:var(--white); border:1px solid var(--color-line); border-radius:var(--radius-md);">
+                            <div style="width:40px; height:40px; flex-shrink:0; background:var(--green-tint); color:var(--green-dark); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </div>
+                            <div>
+                                <h4 style="font-family:var(--font-ui); font-size:.7rem; letter-spacing:var(--track-wide); text-transform:uppercase; color:var(--ash); margin:0 0 .35rem;">Email</h4>
+                                <a href="mailto:info@volcanoartsandhospes.com" style="color:var(--green-dark); font-weight:500;">info@volcanoartsandhospes.com</a>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp / phone -->
+                        <div style="display: flex; gap: 1rem; align-items: flex-start; padding:1.25rem; background:var(--white); border:1px solid var(--color-line); border-radius:var(--radius-md);">
+                            <div style="width:40px; height:40px; flex-shrink:0; background:var(--green-tint); color:var(--green-dark); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+                            </div>
+                            <div>
+                                <h4 style="font-family:var(--font-ui); font-size:.7rem; letter-spacing:var(--track-wide); text-transform:uppercase; color:var(--ash); margin:0 0 .35rem;">WhatsApp</h4>
+                                <p style="color:var(--charcoal); font-size:.95rem; margin:0;">Fastest for booking questions. Daytime (CAT, UTC+2).</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; padding:1.25rem; background:linear-gradient(135deg, rgba(0,166,81,.14), rgba(255,255,255,.7)); border:1px solid rgba(0,166,81,.3); border-radius:var(--radius-md);">
+                            <div>
+                                <h4 style="font-family:var(--font-ui); font-size:.7rem; letter-spacing:var(--track-wide); text-transform:uppercase; color:var(--ash); margin:0 0 .35rem;">Live messaging</h4>
+                                <p style="color:var(--charcoal); font-size:.95rem; margin:0;">Need immediate guidance? Open live messaging and chat directly with our support team.</p>
+                            </div>
+                            <button type="button" class="btn btn--primary btn--sm" data-open-chat>Start live chat</button>
+                        </div>
+
+                        <!-- Languages -->
+                        <div style="display: flex; gap: 1rem; align-items: flex-start; padding:1.25rem; background:var(--white); border:1px solid var(--color-line); border-radius:var(--radius-md);">
+                            <div style="width:40px; height:40px; flex-shrink:0; background:var(--green-tint); color:var(--green-dark); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M2 5h12"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                            </div>
+                            <div>
+                                <h4 style="font-family:var(--font-ui); font-size:.7rem; letter-spacing:var(--track-wide); text-transform:uppercase; color:var(--ash); margin:0 0 .35rem;">Languages</h4>
+                                <p style="color:var(--charcoal); font-size:.95rem; margin:0;">English &amp; French. Kinyarwanda for cultural sessions.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tour operator partnerships split ───────────────── -->
+    <section class="section section--band">
+        <div class="container">
+            <div class="split-section">
+                <div class="reveal">
+                    <span class="section-label">For tour operators</span>
+                    <h2 class="section-title" style="margin-top:.6rem;">Bring your travelers to Musanze.</h2>
+                    <p class="section-subtitle" style="margin-bottom:1.75rem;">
+                        Partner pricing, group-itinerary builder, JWT-secured API. We work with safari operators, cultural-tourism agencies, and educational programs running 1–30+ guest groups.
+                    </p>
+                    <div style="display:flex; gap:.65rem; flex-wrap:wrap;">
+                        <a th:href="@{/tour-operators/request}" class="btn btn--primary">Apply for partnership</a>
+                        <a th:href="@{/tour-operators/register}" class="btn btn--outline">Create operator account</a>
+                    </div>
+                </div>
+                <div class="reveal split-section__media">
+                    <span class="split-section__media-tag">B2B</span>
+                    <img src="/uploads/tours.png" alt="Tour operators" loading="lazy" onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

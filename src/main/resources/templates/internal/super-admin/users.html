@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Staff &amp; Accounts</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">›</span>
+    <span>Staff &amp; Accounts</span>
+</th:block>
+
+<th:block layout:fragment="styles">
+    <style>
+        .staff-page {
+            display: grid;
+            gap: 1.1rem;
+        }
+
+        .staff-hero {
+            position: relative;
+            overflow: hidden;
+            padding: 1.15rem 1.2rem 1.05rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-xl);
+            background:
+                    radial-gradient(circle at top right, rgba(87, 212, 153, 0.16), transparent 28%),
+                    linear-gradient(145deg, rgba(16, 22, 20, 0.98), rgba(10, 12, 12, 0.98));
+            box-shadow: var(--shadow-sm);
+        }
+
+        .staff-hero::after {
+            content: '';
+            position: absolute;
+            inset: auto -4rem -4rem auto;
+            width: 14rem;
+            height: 14rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 162, 89, 0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .staff-hero__top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.95rem;
+        }
+
+        .staff-hero__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.7rem;
+            padding: 0.34rem 0.72rem;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(0, 162, 89, 0.2);
+            background: rgba(0, 162, 89, 0.08);
+            font-family: var(--font-heading);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-primary-glow);
+        }
+
+        .staff-hero__eyebrow::before {
+            content: '';
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 50%;
+            background: var(--color-primary);
+            box-shadow: 0 0 14px rgba(0, 162, 89, 0.55);
+        }
+
+        .staff-hero__title {
+            max-width: 42rem;
+        }
+
+        .staff-hero__title h1 {
+            margin-bottom: 0.25rem;
+            font-size: clamp(2.1rem, 4vw, 3.25rem);
+            line-height: 1.04;
+        }
+
+        .staff-hero__title p {
+            max-width: 34rem;
+            color: var(--color-gray-400);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .staff-hero__actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .staff-hero__button-label {
+            white-space: nowrap;
+        }
+
+        .staff-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+        }
+
+        .staff-summary__card {
+            min-height: 0;
+            padding: 0.9rem 0.95rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .staff-summary__label {
+            margin-bottom: 0.4rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-gray-500);
+        }
+
+        .staff-summary__value {
+            font-family: var(--font-heading);
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--color-white);
+        }
+
+        .staff-summary__meta {
+            margin-top: 0.45rem;
+            font-size: 0.8rem;
+            color: var(--color-gray-400);
+            line-height: 1.45;
+        }
+
+        .staff-create-card[hidden] {
+            display: none !important;
+        }
+
+        .staff-create-card .admin-card__header {
+            align-items: flex-start;
+        }
+
+        .staff-create-card__title {
+            display: grid;
+            gap: 0.3rem;
+        }
+
+        .staff-create-card__title p {
+            color: var(--color-gray-400);
+            font-size: 0.88rem;
+        }
+
+        .staff-panel-close {
+            flex-shrink: 0;
+        }
+
+        .staff-form-layout {
+            display: grid;
+            grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        .staff-guidance {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .staff-guidance__card {
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(0, 162, 89, 0.16);
+            background: linear-gradient(145deg, rgba(0, 162, 89, 0.12), rgba(255, 255, 255, 0.02));
+        }
+
+        .staff-guidance__card h4 {
+            margin-bottom: 0.45rem;
+            font-size: 0.98rem;
+        }
+
+        .staff-guidance__card p,
+        .staff-guidance__list li {
+            color: var(--color-gray-400);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .staff-guidance__list {
+            display: grid;
+            gap: 0.5rem;
+            padding-left: 1rem;
+        }
+
+        .staff-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .staff-form__intro {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .staff-form__intro p {
+            color: var(--color-gray-400);
+            font-size: 0.86rem;
+        }
+
+        .staff-form__error {
+            padding: 0.75rem 0.9rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 105, 105, 0.26);
+            background: rgba(198, 40, 40, 0.12);
+            color: #ffb0b0;
+            font-size: 0.83rem;
+        }
+
+        .staff-form__status {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            color: var(--color-gray-400);
+            font-size: 0.84rem;
+        }
+
+        .staff-form__status-note {
+            color: var(--color-gray-400);
+        }
+
+        .staff-form__status-note.is-warning {
+            color: #ffd27d;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .role-grid--compact {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .role-option {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            padding: 0.95rem 1rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .role-option:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 162, 89, 0.24);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .role-option.is-checked {
+            border-color: rgba(0, 162, 89, 0.38);
+            background: linear-gradient(145deg, rgba(0, 162, 89, 0.16), rgba(255, 255, 255, 0.03));
+            box-shadow: 0 0 0 1px rgba(0, 162, 89, 0.08);
+        }
+
+        .role-option--external.is-checked {
+            border-color: rgba(70, 160, 255, 0.34);
+            background: linear-gradient(145deg, rgba(23, 90, 160, 0.18), rgba(255, 255, 255, 0.03));
+            box-shadow: 0 0 0 1px rgba(70, 160, 255, 0.08);
+        }
+
+        .role-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .role-option__check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+            border-radius: 0.35rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.02);
+            color: transparent;
+            font-size: 0.8rem;
+            transition: all var(--transition-fast);
+        }
+
+        .role-option.is-checked .role-option__check {
+            border-color: var(--color-primary-light);
+            background: var(--color-primary);
+            color: var(--color-pure-white);
+            box-shadow: 0 0 18px rgba(0, 162, 89, 0.35);
+        }
+
+        .role-option--external.is-checked .role-option__check {
+            border-color: rgba(120, 185, 255, 0.7);
+            background: rgba(21, 101, 192, 0.9);
+            box-shadow: 0 0 18px rgba(21, 101, 192, 0.28);
+        }
+
+        .role-option__body {
+            min-width: 0;
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .role-option__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .role-option__name {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--color-white);
+            line-height: 1.3;
+        }
+
+        .role-option__badge {
+            padding: 0.22rem 0.55rem;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-gray-400);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .role-option--staff .role-option__badge {
+            color: var(--color-primary-glow);
+            border-color: rgba(0, 162, 89, 0.18);
+            background: rgba(0, 162, 89, 0.1);
+        }
+
+        .role-option--external .role-option__badge {
+            color: #b0d4ff;
+            border-color: rgba(70, 160, 255, 0.18);
+            background: rgba(30, 80, 140, 0.2);
+        }
+
+        .role-option__desc {
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            line-height: 1.55;
+        }
+
+        .staff-directory-note {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.8rem 1.05rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .staff-directory-note__text {
+            color: var(--color-gray-400);
+            font-size: 0.81rem;
+        }
+
+        .staff-table-card .admin-card__header h3 {
+            margin-bottom: 0.2rem;
+        }
+
+        .staff-table-card .admin-card__header p {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+        }
+
+        .staff-directory-tabs {
+            margin: 0;
+            padding: 0 1.05rem;
+            gap: 0.25rem;
+        }
+
+        .staff-directory-tabs .admin-tabs__tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .staff-directory-tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.4rem;
+            height: 1.4rem;
+            padding: 0 0.4rem;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--color-gray-300);
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .staff-directory-tabs .admin-tabs__tab.active .staff-directory-tab-count {
+            background: rgba(0, 162, 89, 0.15);
+            color: var(--color-primary-glow);
+        }
+
+        .staff-empty-state {
+            padding: 2.2rem 1.25rem;
+            text-align: center;
+            color: var(--color-gray-500);
+        }
+
+        .staff-empty-state h4 {
+            margin-bottom: 0.35rem;
+            font-size: 1rem;
+        }
+
+        .staff-empty-state p {
+            max-width: 28rem;
+            margin: 0 auto;
+            font-size: 0.85rem;
+            line-height: 1.55;
+        }
+
+        .staff-row-email {
+            display: grid;
+            gap: 0.3rem;
+        }
+
+        .staff-row-email__meta {
+            font-size: 0.72rem;
+            color: var(--color-gray-600);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .staff-row-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .staff-edit-row[hidden] {
+            display: none !important;
+        }
+
+        .staff-edit-row td {
+            padding: 0 !important;
+            background: rgba(0, 162, 89, 0.035);
+        }
+
+        .staff-edit-panel {
+            padding: 1.1rem;
+        }
+
+        .staff-edit-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+            gap: 1rem;
+        }
+
+        .staff-edit-section {
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .staff-edit-section__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .staff-edit-section__header h4 {
+            font-size: 0.98rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .staff-edit-section__header p {
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        .staff-inline-form {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .staff-inline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .staff-inline-form .form-group {
+            margin-bottom: 0;
+        }
+
+        .staff-inline-form .form-label {
+            margin-bottom: 0.3rem;
+        }
+
+        .staff-inline-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .staff-inline-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--color-gray-300);
+            font-size: 0.82rem;
+        }
+
+        .staff-inline-toggle input {
+            accent-color: var(--color-primary);
+        }
+
+        @media (max-width: 1100px) {
+            .staff-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .staff-form-layout,
+            .staff-edit-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .staff-hero {
+                padding: 1rem;
+            }
+
+            .staff-hero__top {
+                margin-bottom: 0.8rem;
+            }
+
+            .staff-hero__title h1 {
+                font-size: clamp(1.85rem, 8vw, 2.5rem);
+            }
+
+            .staff-inline-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-grid,
+            .role-grid--compact {
+                grid-template-columns: 1fr;
+            }
+
+            .staff-directory-note {
+                align-items: flex-start;
+            }
+
+            .staff-row-actions {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</th:block>
+
+<main layout:fragment="content">
+    <div class="staff-page">
+        <section class="staff-hero">
+            <div class="staff-hero__top">
+                <div class="staff-hero__title">
+                    <span class="staff-hero__eyebrow">Account Access Control</span>
+                    <h1>Staff &amp; Accounts</h1>
+                    <p>Create and manage internal and external accounts, assign permissions cleanly, and keep role transitions visible instead of letting accounts feel lost.</p>
+                </div>
+                <div class="staff-hero__actions">
+                    <button type="button"
+                            class="btn btn--primary btn--sm"
+                            data-staff-create-toggle
+                            aria-controls="create-staff-section"
+                            aria-expanded="false">
+                        <span aria-hidden="true">+</span>
+                        <span class="staff-hero__button-label">Create Account</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="staff-summary">
+                <article class="staff-summary__card">
+                    <div class="staff-summary__label">Managed Accounts</div>
+                    <div class="staff-summary__value" th:text="${totalManagedAccounts}">0</div>
+                    <div class="staff-summary__meta">Combined total across internal staff and external-only accounts.</div>
+                </article>
+                <article class="staff-summary__card">
+                    <div class="staff-summary__label">Internal Staff</div>
+                    <div class="staff-summary__value" th:text="${#lists.size(staffUsers)}">0</div>
+                    <div class="staff-summary__meta">Accounts with at least one staff role and admin-side visibility.</div>
+                </article>
+                <article class="staff-summary__card">
+                    <div class="staff-summary__label">External Accounts</div>
+                    <div class="staff-summary__value" th:text="${#lists.size(externalUsers)}">0</div>
+                    <div class="staff-summary__meta">Client, operator, talent, and other non-staff accounts live here.</div>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-card staff-create-card" id="create-staff-section" hidden data-staff-create-panel>
+            <div class="admin-card__header">
+                <div class="staff-create-card__title">
+                    <h3>Create Account</h3>
+                    <p>Use internal roles for admin access. External-only roles are allowed, and those accounts will appear under External Accounts instead of Internal Staff.</p>
+                </div>
+                <button type="button" class="btn btn--outline btn--sm staff-panel-close" data-staff-create-close>Close</button>
+            </div>
+            <div class="admin-card__body">
+                <div class="staff-form-layout">
+                    <aside class="staff-guidance">
+                        <div class="staff-guidance__card">
+                            <h4>Before you create the account</h4>
+                            <p>Use staff roles for admin-side access. External-only roles are also supported here, and those accounts stay visible under All Accounts and External Accounts.</p>
+                        </div>
+                        <div class="staff-guidance__card">
+                            <h4>Role guidance</h4>
+                            <ul class="staff-guidance__list">
+                                <li><strong>SUPER_ADMIN</strong> has full platform control.</li>
+                                <li><strong>CONTENT_MANAGER</strong> manages catalog, blog, and media.</li>
+                                <li><strong>OPS_MANAGER</strong> handles bookings, orders, and applications.</li>
+                                <li><strong>ADMIN</strong> is the compatibility staff role used across internal access checks.</li>
+                                <li><strong>External roles</strong> keep the account outside the internal staff directory while remaining active in the platform.</li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <form th:action="@{/admin/users/admins}" method="post" class="staff-form" data-role-form data-role-context="create">
+                        <input type="hidden" name="tab" th:value="${activeDirectoryTab}" />
+                        <div class="modal-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input class="form-input" name="email" type="email" placeholder="staff@volcanoartscenter.rw" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input class="form-input" name="password" type="password" placeholder="Secure password" required />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input class="form-input" name="firstName" placeholder="First name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input class="form-input" name="lastName" placeholder="Last name" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="staff-form__intro">
+                            <p>Select one or more roles. The role cards below replace the browser multi-select so assignments are easier to scan.</p>
+                            <div class="staff-form__status">
+                                <span class="chip chip--primary" data-role-count>0 roles selected</span>
+                                <span class="staff-form__status-note" data-role-visibility-note>Select at least one staff role to place the account in Internal Staff.</span>
+                            </div>
+                        </div>
+
+                        <div class="staff-form__error" hidden data-role-error>
+                            Select at least one role before submitting this form.
+                        </div>
+
+                        <div class="role-grid">
+                            <label th:each="r : ${allRoles}"
+                                   th:with="staffRole=${r.name == 'SUPER_ADMIN' or r.name == 'ADMIN' or r.name == 'CONTENT_MANAGER' or r.name == 'OPS_MANAGER'}"
+                                   class="role-option"
+                                   th:classappend="${staffRole} ? ' role-option--staff' : ' role-option--external'">
+                                <input type="checkbox" name="roles" th:value="${r.name}" />
+                                <span class="role-option__check">✓</span>
+                                <span class="role-option__body">
+                                    <span class="role-option__top">
+                                        <span class="role-option__name" th:text="${r.name}">ROLE</span>
+                                        <span class="role-option__badge" th:text="${staffRole} ? 'Staff Access' : 'External Journey'">Staff Access</span>
+                                    </span>
+                                    <span class="role-option__desc" th:text="${r.description ?: 'No description available.'}">Description</span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="staff-inline-actions">
+                            <button type="button" class="btn btn--outline btn--sm" data-staff-create-close>Cancel</button>
+                            <button type="submit" class="btn btn--primary btn--sm">Create Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin-card staff-table-card">
+            <div class="admin-card__header">
+                <div>
+                    <h3 th:text="${activeDirectoryTab == 'all'} ? 'All Accounts' : (${activeDirectoryTab == 'external'} ? 'External Accounts' : 'Internal Staff Directory')">All Accounts</h3>
+                    <p th:text="${activeDirectoryTab == 'all'} ? 'Combined directory for every account in the platform. Use the tabs to narrow the view when you need only staff or only external journeys.' : (${activeDirectoryTab == 'external'} ? 'Accounts without a staff role. Promote one back to staff by assigning SUPER_ADMIN, ADMIN, CONTENT_MANAGER, or OPS_MANAGER.' : 'Staff-only view for internal operators, content managers, and super admins.')">Combined directory for every account in the platform.</p>
+                </div>
+                <span class="chip chip--info" th:text="${#lists.size(directoryUsers)} + ' users'">0 users</span>
+            </div>
+
+            <div class="admin-tabs staff-directory-tabs">
+                <a class="admin-tabs__tab"
+                   th:classappend="${activeDirectoryTab == 'all'} ? ' active'"
+                   th:href="@{/admin/users(tab='all')}">
+                    All Accounts
+                    <span class="staff-directory-tab-count" th:text="${totalManagedAccounts}">0</span>
+                </a>
+                <a class="admin-tabs__tab"
+                   th:classappend="${activeDirectoryTab == 'staff'} ? ' active'"
+                   th:href="@{/admin/users(tab='staff')}">
+                    Internal Staff
+                    <span class="staff-directory-tab-count" th:text="${#lists.size(staffUsers)}">0</span>
+                </a>
+                <a class="admin-tabs__tab"
+                   th:classappend="${activeDirectoryTab == 'external'} ? ' active'"
+                   th:href="@{/admin/users(tab='external')}">
+                    External Accounts
+                    <span class="staff-directory-tab-count" th:text="${#lists.size(externalUsers)}">0</span>
+                </a>
+            </div>
+
+            <div class="staff-directory-note">
+                <div class="staff-directory-note__text"
+                     th:if="${activeDirectoryTab == 'all'}">
+                    This combined view keeps both staff and external journeys visible. Changing roles will move the account between directory tabs, but it stays visible here.
+                </div>
+                <div class="staff-directory-note__text"
+                     th:if="${activeDirectoryTab == 'staff'}">
+                    External-only accounts move to <strong>External Accounts</strong> unless paired with a staff role.
+                </div>
+                <div class="staff-directory-note__text"
+                     th:if="${activeDirectoryTab == 'external'}">
+                    These accounts are still active in the system; they simply do not have any staff role right now.
+                </div>
+                <button type="button"
+                        class="btn btn--outline btn--xs"
+                        data-staff-create-toggle
+                        aria-controls="create-staff-section"
+                        aria-expanded="false">
+                    New Account
+                </button>
+            </div>
+
+            <div class="admin-card__body--flush">
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Country</th>
+                            <th>Status</th>
+                            <th>Roles</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(directoryUsers)}">
+                            <td colspan="7">
+                                <div class="staff-empty-state">
+                                    <h4 th:text="${activeDirectoryTab == 'all'} ? 'No accounts yet' : (${activeDirectoryTab == 'external'} ? 'No external-only accounts yet' : 'No internal staff accounts yet')">No accounts yet</h4>
+                                    <p th:text="${activeDirectoryTab == 'all'} ? 'Create an account to populate this directory. It will remain visible here whether it belongs to staff or external journeys.' : (${activeDirectoryTab == 'external'} ? 'Accounts will appear here when they have no staff role assigned. Create one directly or move one here by removing all staff roles.' : 'Create an internal account with a staff role to populate this directory.')">Create an account to populate this directory.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <th:block th:each="u : ${directoryUsers}"
+                                  th:with="staffAccount=${u.roles.![name].contains('SUPER_ADMIN') or u.roles.![name].contains('ADMIN') or u.roles.![name].contains('CONTENT_MANAGER') or u.roles.![name].contains('OPS_MANAGER')}">
+                            <tr>
+                                <td>
+                                    <div class="staff-row-email">
+                                        <span class="cell-mono" th:text="${u.email}">user@email</span>
+                                        <span class="staff-row-email__meta" th:text="${staffAccount} ? 'Internal account' : 'External account'">Internal account</span>
+                                    </div>
+                                </td>
+                                <td class="cell-primary" th:text="${u.fullName}">Name</td>
+                                <td th:text="${u.phone ?: '-'}">-</td>
+                                <td th:text="${u.country ?: '-'}">-</td>
+                                <td>
+                                    <span class="chip" th:data-status="${u.enabled ? 'ENABLED' : 'DISABLED'}" th:text="${u.enabled ? 'ENABLED' : 'DISABLED'}">ENABLED</span>
+                                </td>
+                                <td>
+                                    <span th:each="r : ${u.roles}" class="chip chip--primary" style="margin-right:0.25rem; margin-bottom:0.25rem;" th:text="${r.name}">ROLE</span>
+                                </td>
+                                <td>
+                                    <div class="staff-row-actions">
+                                        <button type="button"
+                                                class="btn btn--outline btn--xs"
+                                                th:attr="data-edit-toggle=${u.id}">
+                                            Edit Access
+                                        </button>
+                                        <form th:action="@{|/admin/users/${u.id}/deactivate|}" method="post" style="display:inline;">
+                                            <input type="hidden" name="tab" th:value="${activeDirectoryTab}" />
+                                            <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Deactivate this account?')">Deactivate</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="staff-edit-row" th:id="'edit-user-' + ${u.id}" hidden>
+                                <td colspan="7">
+                                    <div class="staff-edit-panel">
+                                        <div class="staff-edit-grid">
+                                            <section class="staff-edit-section">
+                                                <div class="staff-edit-section__header">
+                                                    <div>
+                                                        <h4>Profile Details</h4>
+                                                        <p>Update the basic account record and enabled state.</p>
+                                                    </div>
+                                                    <span class="chip chip--info" th:text="${u.email}">email</span>
+                                                </div>
+
+                                                <form th:action="@{|/admin/users/${u.id}/update|}" method="post" class="staff-inline-form">
+                                                    <input type="hidden" name="tab" th:value="${activeDirectoryTab}" />
+                                                    <div class="staff-inline-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">First name</label>
+                                                            <input class="form-input" name="firstName" th:value="${u.firstName}" required />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Last name</label>
+                                                            <input class="form-input" name="lastName" th:value="${u.lastName}" required />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="staff-inline-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Phone</label>
+                                                            <input class="form-input" name="phone" th:value="${u.phone}" placeholder="Phone" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Country</label>
+                                                            <input class="form-input" name="country" th:value="${u.country}" placeholder="Country" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="staff-inline-actions">
+                                                        <label class="staff-inline-toggle">
+                                                            <input type="checkbox" name="enabled" th:checked="${u.enabled}" />
+                                                            Keep this account enabled
+                                                        </label>
+                                                        <button class="btn btn--primary btn--xs" type="submit">Save Profile</button>
+                                                    </div>
+                                                </form>
+                                            </section>
+
+                                            <section class="staff-edit-section">
+                                                <div class="staff-edit-section__header">
+                                                    <div>
+                                                        <h4>Role Assignment</h4>
+                                                        <p>Use the role cards to update access cleanly without scrolling a browser multi-select.</p>
+                                                    </div>
+                                                </div>
+
+                                                <form th:action="@{|/admin/users/${u.id}/roles|}" method="post" class="staff-inline-form" data-role-form data-role-context="update">
+                                                    <input type="hidden" name="tab" th:value="${activeDirectoryTab}" />
+                                                    <div class="staff-form__status">
+                                                        <span class="chip chip--primary" data-role-count>0 roles selected</span>
+                                                        <span class="staff-form__status-note" data-role-visibility-note>Select at least one staff role to place the account in Internal Staff.</span>
+                                                    </div>
+
+                                                    <div class="staff-form__error" hidden data-role-error>
+                                                        Select at least one role before saving role assignments.
+                                                    </div>
+
+                                                    <div class="role-grid role-grid--compact">
+                                                        <label th:each="r : ${allRoles}"
+                                                               th:with="staffRole=${r.name == 'SUPER_ADMIN' or r.name == 'ADMIN' or r.name == 'CONTENT_MANAGER' or r.name == 'OPS_MANAGER'}"
+                                                               class="role-option"
+                                                               th:classappend="${staffRole} ? ' role-option--staff' : ' role-option--external'">
+                                                            <input type="checkbox"
+                                                                   name="roles"
+                                                                   th:value="${r.name}"
+                                                                   th:checked="${u.roles.![name].contains(r.name)}" />
+                                                            <span class="role-option__check">✓</span>
+                                                            <span class="role-option__body">
+                                                                <span class="role-option__top">
+                                                                    <span class="role-option__name" th:text="${r.name}">ROLE</span>
+                                                                    <span class="role-option__badge" th:text="${staffRole} ? 'Staff Access' : 'External Journey'">Staff Access</span>
+                                                                </span>
+                                                                <span class="role-option__desc" th:text="${r.description ?: 'No description available.'}">Description</span>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="staff-inline-actions">
+                                                        <button type="button"
+                                                                class="btn btn--outline btn--xs"
+                                                                th:attr="data-edit-toggle=${u.id}">
+                                                            Close
+                                                        </button>
+                                                        <button class="btn btn--primary btn--xs" type="submit">Update Roles</button>
+                                                    </div>
+                                                </form>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var staffRoleNames = ['SUPER_ADMIN', 'ADMIN', 'CONTENT_MANAGER', 'OPS_MANAGER'];
+            var createPanel = document.querySelector('[data-staff-create-panel]');
+            var createToggles = Array.from(document.querySelectorAll('[data-staff-create-toggle]'));
+            var createCloseButtons = Array.from(document.querySelectorAll('[data-staff-create-close]'));
+
+            function setCreatePanelState(open) {
+                if (!createPanel) {
+                    return;
+                }
+
+                createPanel.hidden = !open;
+                createToggles.forEach(function (button) {
+                    button.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    var label = button.querySelector('.staff-hero__button-label');
+                    if (label) {
+                        label.textContent = open ? 'Close Account Form' : 'Create Account';
+                    } else {
+                        button.textContent = open ? 'Close' : 'New Account';
+                    }
+                });
+
+                if (open) {
+                    createPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            createToggles.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setCreatePanelState(createPanel ? createPanel.hidden : false);
+                });
+            });
+
+            createCloseButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setCreatePanelState(false);
+                });
+            });
+
+            document.querySelectorAll('[data-edit-toggle]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = button.getAttribute('data-edit-toggle');
+                    var row = document.getElementById('edit-user-' + targetId);
+                    if (!row) {
+                        return;
+                    }
+
+                    var willOpen = row.hidden;
+                    document.querySelectorAll('.staff-edit-row').forEach(function (item) {
+                        item.hidden = true;
+                    });
+                    row.hidden = !willOpen;
+
+                    if (willOpen) {
+                        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+            });
+
+            function updateRoleCardState(input) {
+                var option = input.closest('.role-option');
+                if (!option) {
+                    return;
+                }
+                option.classList.toggle('is-checked', input.checked);
+            }
+
+            function updateRoleFormState(form) {
+                var inputs = Array.from(form.querySelectorAll('input[name="roles"]'));
+                var checked = inputs.filter(function (input) { return input.checked; });
+                var checkedStaff = checked.filter(function (input) {
+                    return staffRoleNames.indexOf(input.value) !== -1;
+                });
+
+                inputs.forEach(updateRoleCardState);
+
+                var countTarget = form.querySelector('[data-role-count]');
+                if (countTarget) {
+                    countTarget.textContent = checked.length + (checked.length === 1 ? ' role selected' : ' roles selected');
+                }
+
+                var noteTarget = form.querySelector('[data-role-visibility-note]');
+                if (noteTarget) {
+                    if (checked.length === 0) {
+                        noteTarget.textContent = 'Select at least one role before saving.';
+                        noteTarget.classList.add('is-warning');
+                    } else if (checkedStaff.length === 0) {
+                        noteTarget.textContent = 'External-only selection: this account will be available under External Accounts.';
+                        noteTarget.classList.add('is-warning');
+                    } else {
+                        noteTarget.textContent = 'This account will appear under Internal Staff.';
+                        noteTarget.classList.remove('is-warning');
+                    }
+                }
+            }
+
+            document.querySelectorAll('[data-role-form]').forEach(function (form) {
+                var inputs = form.querySelectorAll('input[name="roles"]');
+                var errorTarget = form.querySelector('[data-role-error]');
+                var context = form.getAttribute('data-role-context') || 'update';
+
+                inputs.forEach(function (input) {
+                    input.addEventListener('change', function () {
+                        if (errorTarget) {
+                            errorTarget.hidden = true;
+                        }
+                        updateRoleFormState(form);
+                    });
+                });
+
+                form.addEventListener('submit', function (event) {
+                    var checked = Array.from(inputs).filter(function (input) { return input.checked; });
+                    var hasRole = checked.length > 0;
+                    var checkedStaff = checked.filter(function (input) {
+                        return staffRoleNames.indexOf(input.value) !== -1;
+                    });
+                    if (!hasRole) {
+                        event.preventDefault();
+                        if (errorTarget) {
+                            errorTarget.hidden = false;
+                        }
+                        updateRoleFormState(form);
+                        return;
+                    }
+
+                    if (checkedStaff.length === 0) {
+                        var confirmMessage = context === 'create'
+                            ? 'This account will be created with external-only roles and shown under External Accounts. Continue?'
+                            : 'This account will lose all staff roles and move to External Accounts after save. Continue?';
+                        if (!window.confirm(confirmMessage)) {
+                            event.preventDefault();
+                            updateRoleFormState(form);
+                        }
+                    }
+                });
+
+                updateRoleFormState(form);
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

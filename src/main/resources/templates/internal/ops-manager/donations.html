@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/admin-base}">
+<head><title>Donations</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">›</span><span>Donations</span></th:block>
+<main layout:fragment="content">
+    <div class="admin-page-header"><div class="admin-page-header__info"><h1>Donations</h1><p>Track conservation donations and their payment statuses.</p></div></div>
+    <div class="admin-card">
+        <div class="admin-card__header"><h3>All Donations</h3><span class="chip chip--info" th:text="${#lists.size(items)} + ' total'">0</span></div>
+        <div class="admin-card__body--flush"><div class="admin-table-wrap">
+            <table class="admin-table"><thead><tr><th>ID</th><th>Donor</th><th>Amount</th><th>Campaign</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            <tr th:each="d : ${items}">
+                <td class="cell-mono" th:text="'#' + ${d.id}">1</td>
+                <td><div class="cell-primary" th:text="${d.donorName ?: '-'}">Name</div><div style="font-size:.72rem;color:var(--color-gray-500);" th:text="${d.donorEmail}">email</div></td>
+                <td style="font-weight:600;" th:text="${d.amount + ' ' + d.currency}">0 USD</td>
+                <td th:text="${d.campaignName ?: '-'}">-</td>
+                <td><span class="chip" th:data-status="${d.status}" th:text="${d.status}">PENDING</span></td>
+                <td th:text="${d.createdAt}">2026-01-01</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(items)}"><td colspan="6" class="admin-empty"><div class="admin-empty__icon">💚</div><div class="admin-empty__text">No donations yet</div></td></tr>
+            </tbody></table>
+        </div></div>
+    </div>
+</main>
+</body>
+</html>

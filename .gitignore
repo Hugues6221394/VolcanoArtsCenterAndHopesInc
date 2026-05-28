@@ -1,0 +1,50 @@
+# ── Build output ──
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ── IDE ──
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+*.log
+
+# ── Maven ──
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# ── Application ──
+*.env
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-secrets.yml
+
+# ── Local artefacts that must never be committed ──
+*-cookies.txt
+*.cookies
+tmp-*.log
+tmp-*.txt
+*.pem
+*.key
+*.p12
+*.jks
+/uploads/
+/logs/

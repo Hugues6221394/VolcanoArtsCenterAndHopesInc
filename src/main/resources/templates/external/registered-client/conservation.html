@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Conservation | Volcano Arts Center</title>
+</head>
+<body>
+<main layout:fragment="content">
+
+    <section class="hero-golden hero-golden--compact hero-golden--conservation hero-golden--fitted hero-golden--frame-fill hero-golden--portrait-source vac-cinematic-hero reveal">
+        <div class="hero-golden__bg vac-cinematic-hero__bg">
+            <img class="hero-slide-backdrop" src="/uploads/conservationhomepage.jpeg" alt="" aria-hidden="true"
+                 onerror="this.onerror=null;this.src='/uploads/conservation.jpeg';" />
+            <img class="hero-slide active vac-cinematic-hero__img" src="/uploads/conservationhomepage.jpeg" alt="Rwandan conservation landscape"
+                 onerror="this.onerror=null;this.src='/uploads/conservation.jpeg';" />
+            <div class="hero-golden__veil vac-cinematic-hero__veil vac-cinematic-hero__veil--light"></div>
+        </div>
+        <div class="hero-golden__content">
+            <p class="hero-golden__kicker">Conservation · Global giving · Transparent impact</p>
+            <h1 class="hero-golden__title hero-golden__title--compact">Protect Our Extraordinary.</h1>
+            <div class="hero-golden__bottom">
+                <p class="hero-golden__sub">Tree planting, community stewardship, and sustainable education near Volcanoes National Park — funded by supporters worldwide.</p>
+                <div class="hero-golden__actions">
+                    <a href="#donate" class="btn-hero-primary">Become a Guardian</a>
+                    <a href="#projects" class="btn-hero-outline">Active Projects</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vac-section vac-section--white">
+        <div class="container">
+            <div class="vac-section-head vac-section-head--center">
+                <p class="vac-eyebrow">Impact Clarity</p>
+                <h2 class="vac-heading-lg">From donation to measurable outcomes.</h2>
+                <p class="vac-lead vac-lead--center">International supporters can choose purpose, amount, and currency — with full visibility into how contributions are used.</p>
+            </div>
+            <div class="vac-focus-grid vac-focus-grid--media vac-focus-grid--three">
+                <a class="vac-focus-card vac-focus-card--media" href="#projects">
+                    <img class="vac-focus-card__photo" src="/uploads/conservation-planting.jpeg" alt="" aria-hidden="true" loading="lazy" />
+                    <div class="vac-focus-card__shade"></div>
+                    <span class="vac-focus-card__label">Projects</span>
+                    <h3>Visible Program Priorities</h3>
+                    <p>Reforestation, education, and sustainable art practices shown up front.</p>
+                </a>
+                <a class="vac-focus-card vac-focus-card--media" href="#donate">
+                    <img class="vac-focus-card__photo" src="/uploads/conservation.jpeg" alt="" aria-hidden="true" loading="lazy" />
+                    <div class="vac-focus-card__shade"></div>
+                    <span class="vac-focus-card__label">Donations</span>
+                    <h3>Structured Giving Flow</h3>
+                    <p>Choose amount, purpose, and campaign with a guided international form.</p>
+                </a>
+                <a class="vac-focus-card vac-focus-card--media" th:href="@{/account/notifications}">
+                    <img class="vac-focus-card__photo" src="/uploads/wildlife-gorillas.jpeg" alt="" aria-hidden="true" loading="lazy" />
+                    <div class="vac-focus-card__shade"></div>
+                    <span class="vac-focus-card__label">Follow-up</span>
+                    <h3>Track Updates Over Time</h3>
+                    <p>Signed-in users follow notifications and program communication in-platform.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="vac-section vac-section--ivory" id="projects">
+        <div class="container">
+            <div class="vac-section-head">
+                <div>
+                    <p class="vac-eyebrow">Active Projects</p>
+                    <h2 class="vac-heading-lg">Where your support goes.</h2>
+                </div>
+            </div>
+            <div class="vac-impact-grid" th:if="${campaigns != null and !#lists.isEmpty(campaigns)}">
+                <article class="vac-impact-card vac-campaign-card" th:each="campaign : ${campaigns}">
+                    <div class="vac-impact-card__media vac-campaign-card__img"
+                         th:style="${campaign.imageUrl != null ? 'background-image:url(' + campaign.imageUrl + ')' : 'background-image:url(/uploads/conservationhomepage.jpeg)'}">
+                        <span class="vac-campaign-card__badge">Active</span>
+                    </div>
+                    <div class="vac-impact-card__body">
+                        <h3 th:text="${campaign.name}">Campaign</h3>
+                        <p th:text="${campaign.description != null ? campaign.description : 'Support community-led conservation near Volcanoes National Park.'}">Description</p>
+                        <p th:if="${campaign.impactStatement != null}" class="vac-campaign-card__impact" th:text="${campaign.impactStatement}">Impact</p>
+                        <div th:if="${campaign.goalAmount != null}" class="vac-impact-prog">
+                            <div class="vac-impact-prog__fill"
+                                 th:style="'width:' + ${campaign.goalAmount.doubleValue() > 0 ? ((campaign.raisedAmount != null ? campaign.raisedAmount.doubleValue() : 0) / campaign.goalAmount.doubleValue() * 100) : 0} + '%;'"></div>
+                        </div>
+                        <p th:if="${campaign.goalAmount != null}" class="vac-impact-prog__label">
+                            Raised <span th:text="'$' + ${#numbers.formatDecimal(campaign.raisedAmount != null ? campaign.raisedAmount : 0, 1, 2)}">$0</span>
+                            of <span th:text="'$' + ${#numbers.formatDecimal(campaign.goalAmount, 1, 2)}">$0</span> goal
+                        </p>
+                        <a th:href="@{/conservation#donate}" class="vac-dept-pillar__link" style="margin-top:0.75rem;display:inline-block;">Donate to this project →</a>
+                    </div>
+                </article>
+            </div>
+            <div class="vac-empty-panel" th:if="${campaigns == null or #lists.isEmpty(campaigns)}">
+                <h3>Conservation campaigns are being prepared.</h3>
+                <p>Check back soon or donate to our general fund below.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="vac-section vac-section--white" id="donate">
+        <div class="container">
+            <div th:if="${successMessage}" class="vac-alert vac-alert--success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="vac-alert vac-alert--danger" th:text="${errorMessage}"></div>
+
+            <div class="vac-donation-layout">
+                <div>
+                    <p class="vac-eyebrow">International Giving</p>
+                    <h2 class="vac-heading-lg">Invest in Rwanda's ecosystem.</h2>
+                    <p class="vac-lead">Submit a real donation request in USD, EUR, or RWF. Choose pay-later for testing or configured payment providers for live giving.</p>
+                    <ul class="vac-donation-benefits">
+                        <li><strong>Direct impact:</strong> contributions logged against purpose, amount, and optional campaign.</li>
+                        <li><strong>Operational visibility:</strong> donations appear in donor dashboard and admin board.</li>
+                        <li><strong>Testing-safe:</strong> use Confirm Payment Later without live payment setup.</li>
+                    </ul>
+                    <div class="vac-checkout-note">Recommended for testing: use a real name and email, choose a purpose, and leave payment on <strong>Confirm Payment Later</strong>.</div>
+                </div>
+
+                <div class="vac-donation-panel">
+                    <h3 class="vac-heading-md">Make a Contribution</h3>
+                    <p class="vac-muted-note">Choose an amount, select where it should help most, and submit a real donation record.</p>
+
+                    <form th:action="@{/conservation/donate}" method="post" class="vac-checkout-form">
+                        <div class="vac-donation-chips">
+                            <button type="button" onclick="document.getElementById('amt').value='25'">$25</button>
+                            <button type="button" onclick="document.getElementById('amt').value='50'">$50</button>
+                            <button type="button" onclick="document.getElementById('amt').value='100'">$100</button>
+                            <button type="button" onclick="document.getElementById('amt').value='250'">$250</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="donor-name">Donor Name</label>
+                            <input id="donor-name" class="form-input" name="donorName" required placeholder="Full name" autocomplete="name" />
+                        </div>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="donor-email">Donor Email</label>
+                                <input id="donor-email" class="form-input" type="email" name="donorEmail" required placeholder="name@example.com" autocomplete="email" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="donor-country">Country</label>
+                                <input id="donor-country" class="form-input" name="donorCountry" placeholder="e.g. United States" autocomplete="country-name" />
+                            </div>
+                        </div>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="amt">Amount</label>
+                                <input class="form-input" id="amt" name="amount" type="number" min="1" step="0.01" value="50" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="currency">Currency</label>
+                                <select id="currency" class="form-select" name="currency">
+                                    <option value="USD">USD</option>
+                                    <option value="RWF">RWF</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="purpose">Fund Allocation</label>
+                            <select id="purpose" class="form-select" name="purpose" required>
+                                <option th:each="purpose : ${donationPurposes}" th:value="${purpose.name()}" th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(purpose.name(), '_', ' ')))}">General</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="campaign">Campaign</label>
+                            <select id="campaign" class="form-select" name="campaignId">
+                                <option value="">General fund</option>
+                                <option th:each="campaign : ${campaigns}" th:value="${campaign.id}" th:text="${campaign.name}">Campaign</option>
+                            </select>
+                        </div>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="payment-method">Payment Method</label>
+                                <select id="payment-method" class="form-select" name="paymentMethod">
+                                    <option value="">Confirm Payment Later</option>
+                                    <option value="STRIPE_CARD">Card (Stripe)</option>
+                                    <option value="MTN_MOMO">MTN Mobile Money</option>
+                                    <option value="AIRTEL_MONEY">Airtel Money</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="recurring">Recurring Frequency</label>
+                                <select id="recurring" class="form-select" name="recurringFrequency">
+                                    <option value="">One-time donation</option>
+                                    <option th:each="frequency : ${recurringFrequencies}" th:value="${frequency.name()}" th:text="${#strings.capitalizeWords(#strings.toLowerCase(frequency.name()))}">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="message">Message</label>
+                            <textarea id="message" class="form-input" name="message" rows="3" placeholder="Leave a note of encouragement or intent…"></textarea>
+                        </div>
+                        <label class="vac-checkbox">
+                            <input type="checkbox" name="isRecurring" value="true" />
+                            Make this a recurring donation
+                        </label>
+                        <div class="form-group">
+                            <label class="form-label" for="captcha">Captcha Token</label>
+                            <input id="captcha" class="form-input" name="captchaToken" placeholder="Enter captcha token if enabled" />
+                        </div>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn--primary btn--lg">Submit Donation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

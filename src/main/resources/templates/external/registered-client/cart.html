@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Shopping Cart | Volcano Arts Center</title>
+</head>
+<body>
+<main layout:fragment="content" class="vac-cart-page">
+    <section class="page-header vac-cart-hero">
+        <div class="page-header__decor">
+            <img src="/uploads/arts page 4.jpg" alt="Rwandan artwork detail" loading="eager" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+        </div>
+        <div class="container">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/}">Home</a><span class="breadcrumb__separator">/</span><span>Cart</span>
+            </nav>
+            <h1>Your Shopping Cart</h1>
+            <p class="page-header__lead">Review original artworks, shipping details, and checkout information before your order reaches the Volcano Arts team.</p>
+        </div>
+    </section>
+
+    <section class="vac-section vac-section--ivory vac-cart-section">
+        <div class="container">
+            <div class="vac-cart-trust" th:unless="${#maps.isEmpty(cartItems)}">
+                <div class="vac-cart-trust__item">
+                    <strong>Worldwide fulfilment</strong>
+                    <span>Coordinated shipping to 40+ countries</span>
+                </div>
+                <div class="vac-cart-trust__item">
+                    <strong>Secure checkout</strong>
+                    <span>Stripe, MoMo, or confirm later</span>
+                </div>
+                <div class="vac-cart-trust__item">
+                    <strong>Original artworks</strong>
+                    <span>Availability confirmed before dispatch</span>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="vac-alert vac-alert--success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="vac-alert vac-alert--danger" th:text="${errorMessage}"></div>
+
+            <div th:if="${#maps.isEmpty(cartItems)}" class="vac-cart-empty reveal">
+                <div class="vac-cart-empty__media">
+                    <img src="/uploads/arts page.jpg" alt="Curated Rwandan artwork" loading="lazy" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+                </div>
+                <span class="vac-eyebrow">Curate your collection</span>
+                <h3>Your cart is empty</h3>
+                <p>Start with paintings, craft, sculpture, or cultural gift pieces from artists connected to Musanze and Volcanoes National Park.</p>
+                <a class="btn btn--primary btn--lg" th:href="@{/art-store}">Continue Shopping</a>
+            </div>
+
+            <div th:unless="${#maps.isEmpty(cartItems)}" class="vac-cart-layout reveal">
+                <div class="vac-cart-list">
+                    <div class="vac-cart-list__head">
+                        <div>
+                            <span class="vac-eyebrow">Selected works</span>
+                            <h3>Items (<span th:text="${#maps.size(cartItems)}">0</span>)</h3>
+                        </div>
+                        <a class="btn btn--outline btn--sm" th:href="@{/art-store}">Add more art</a>
+                    </div>
+                    <div class="vac-cart-items">
+                        <article th:each="entry : ${cartItems}" class="vac-cart-item">
+                            <a th:href="@{|/art-store/${entry.key.slug}|}" class="vac-cart-item__media">
+                                <img th:src="${entry.key.displayPrimaryImageUrl != null ? entry.key.displayPrimaryImageUrl : '/uploads/arts.png'}" th:alt="${entry.key.name}" loading="lazy" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+                            </a>
+                            <div class="vac-cart-item__body">
+                                <h4><a th:href="@{|/art-store/${entry.key.slug}|}" th:text="${entry.key.name}">Product Name</a></h4>
+                                <div class="vac-cart-item__meta" th:text="${entry.key.inventoryType}">Type</div>
+                                <div class="vac-cart-item__price" th:text="'$' + ${#numbers.formatDecimal(entry.key.price,1,'COMMA',2,'POINT')}">$0.00</div>
+                                <div class="vac-cart-item__note">Original item. Availability is confirmed before fulfilment.</div>
+                            </div>
+                            <div class="vac-cart-item__actions">
+                                <span class="vac-qty-pill">Qty: <span th:text="${entry.value}">1</span></span>
+                                <form th:action="@{/cart/remove}" method="post">
+                                    <input type="hidden" name="productId" th:value="${entry.key.id}" />
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="btn btn--ghost btn--sm">Remove</button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <aside class="vac-cart-summary">
+                    <div class="vac-cart-summary__top">
+                        <span class="vac-eyebrow">Order Summary</span>
+                        <p>Worldwide fulfilment is coordinated by the Volcano Arts team after order submission. Shipping is calculated based on your destination.</p>
+                    </div>
+
+                    <div class="vac-cart-summary__row">
+                        <span>Subtotal</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}">$0.00</span>
+                    </div>
+                    <div class="vac-cart-summary__row">
+                        <span>Shipping</span>
+                        <span>Calculated by team</span>
+                    </div>
+                    <div class="vac-cart-summary__total">
+                        <span>Total estimate</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cartTotal,1,'COMMA',2,'POINT')}">$0.00</span>
+                    </div>
+
+                    <form method="post" th:action="@{/cart/checkout}" class="vac-checkout-form">
+                        <p class="vac-checkout-form__heading">Shipping details</p>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="recipient-name">Recipient Name</label>
+                                <input id="recipient-name" class="form-input" name="recipientName" th:value="${currentUser != null ? currentUser.fullName : ''}" required autocomplete="name" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="recipient-email">Email</label>
+                                <input id="recipient-email" class="form-input" type="email" name="recipientEmail" th:value="${currentUser != null ? currentUser.email : ''}" required autocomplete="email" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="recipient-phone">Phone</label>
+                            <input id="recipient-phone" class="form-input" name="recipientPhone" th:value="${currentUser != null ? currentUser.phone : ''}" autocomplete="tel" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="address-line1">Address Line 1</label>
+                            <input id="address-line1" class="form-input" name="addressLine1" required autocomplete="address-line1" />
+                        </div>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="city">City</label>
+                                <input id="city" class="form-input" name="city" required autocomplete="address-level2" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="state">State/Region</label>
+                                <input id="state" class="form-input" name="state" autocomplete="address-level1" />
+                            </div>
+                        </div>
+                        <div class="vac-form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="postal-code">ZIP/Postal</label>
+                                <input id="postal-code" class="form-input" name="postalCode" autocomplete="postal-code" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="country">Country</label>
+                                <input id="country" class="form-input" name="country" required autocomplete="country-name" placeholder="e.g. United States, UK, Rwanda" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="payment-method">Payment Method</label>
+                            <select id="payment-method" class="form-select" name="paymentMethod">
+                                <option value="">Confirm Payment Later</option>
+                                <option value="STRIPE_CARD">Credit Card (Stripe)</option>
+                                <option value="MTN_MOMO">MTN MoMo</option>
+                                <option value="AIRTEL_MONEY">Airtel Money</option>
+                            </select>
+                            <div class="vac-checkout-note">
+                                Use <strong>Confirm Payment Later</strong> for safe local workflow testing. Live payment options require working provider configuration.
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="captchaToken" value="skip_for_now" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <button th:if="${isAuthenticated}" type="submit" class="btn btn--primary btn--lg">Proceed to Checkout</button>
+                        <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn--primary btn--lg">Sign In to Checkout</a>
+                    </form>
+                </aside>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

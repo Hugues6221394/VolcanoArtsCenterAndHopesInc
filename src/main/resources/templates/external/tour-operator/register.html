@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>Tour Operator Registration</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <section class="page-header">
+        <div class="container">
+            <div class="breadcrumb"><a th:href="@{/}">Home</a><span class="breadcrumb__separator">/</span><span>Tour Operator Registration</span></div>
+            <span class="section-label">B2B Partnership</span>
+            <h1>Create Tour Operator Account</h1>
+            <p class="section-subtitle" style="margin-top:1rem;">Register once to submit, track, and manage all partner booking requests.</p>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container" style="max-width:760px;">
+            <div th:if="${successMessage}" style="background: rgba(46,125,50,0.16); border: 1px solid rgba(46,125,50,0.35); border-radius: var(--radius-md); color: #A5D6A7; padding: 1rem; margin-bottom: 1rem;" th:text="${successMessage}"></div>
+            <form method="post" th:action="@{/tour-operators/register}" style="background: var(--gradient-card); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-lg); padding: 1.5rem; display:grid; gap:.8rem; grid-template-columns: repeat(2,minmax(0,1fr));">
+                <div class="form-group" style="grid-column: 1 / -1;"><label class="form-label">Company Name</label><input class="form-input" name="companyName" required/></div>
+                <div class="form-group"><label class="form-label">First Name</label><input class="form-input" name="firstName" required/></div>
+                <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" name="lastName" required/></div>
+                <div class="form-group"><label class="form-label">Business Email</label><input class="form-input" name="email" type="email" required/></div>
+                <div class="form-group"><label class="form-label">Phone</label><input class="form-input" name="phone"/></div>
+                <div class="form-group"><label class="form-label">Country</label><input class="form-input" name="country"/></div>
+                <div class="form-group"><label class="form-label">Password</label><input class="form-input" name="password" type="password" minlength="8" required/></div>
+                <button class="btn btn--primary" type="submit" style="grid-column: 1 / -1;">Create Operator Account</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

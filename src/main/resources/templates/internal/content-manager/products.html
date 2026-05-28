@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Art Catalog</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">&gt;</span>
+    <a th:href="@{/admin/content/products}">Content</a>
+    <span class="sep">&gt;</span>
+    <span>Art Catalog</span>
+</th:block>
+
+<th:block layout:fragment="styles">
+    <style>
+        .art-catalog-page {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .product-form-shell {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .product-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .product-form-grid--three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .product-form-grid--four {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .product-form-field--full {
+            grid-column: 1 / -1;
+        }
+
+        .product-form-help {
+            margin-top: 0.35rem;
+            color: var(--color-gray-500);
+            font-size: 0.76rem;
+            line-height: 1.45;
+        }
+
+        .product-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .product-checkbox-row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.82rem;
+            color: var(--color-gray-300);
+        }
+
+        .product-checkbox-row input {
+            accent-color: var(--color-primary);
+        }
+
+        .product-gallery-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+            gap: 0.55rem;
+        }
+
+        .product-gallery-preview__tile {
+            min-height: 72px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .product-gallery-preview img {
+            width: 100%;
+            height: 88px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .product-gallery-preview--compact img {
+            height: 72px;
+        }
+
+        .product-meta-stack {
+            display: grid;
+            gap: 0.2rem;
+        }
+
+        .product-meta-subtle {
+            font-size: 0.72rem;
+            color: var(--color-gray-500);
+        }
+
+        .status-chip-row {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .product-edit-row,
+        .taxonomy-edit-row {
+            display: none;
+            background: rgba(0, 162, 89, 0.035);
+        }
+
+        .product-edit-row td,
+        .taxonomy-edit-row td {
+            padding: 0 !important;
+        }
+
+        .product-edit-panel,
+        .taxonomy-edit-panel {
+            padding: 1rem;
+        }
+
+        .product-edit-panel {
+            background: linear-gradient(180deg, rgba(8, 14, 12, 0.96), rgba(10, 14, 13, 0.92));
+        }
+
+        .product-edit-shell {
+            padding: 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .product-edit-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+
+        .product-edit-header h4 {
+            margin-bottom: 0.15rem;
+            font-size: 1rem;
+        }
+
+        .product-edit-header p {
+            color: var(--color-gray-500);
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        .product-edit-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.9rem;
+            flex-wrap: wrap;
+            margin-top: 0.35rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .product-edit-actions__note {
+            color: var(--color-gray-500);
+            font-size: 0.82rem;
+            line-height: 1.45;
+            max-width: 34rem;
+        }
+
+        .product-edit-actions__buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-left: auto;
+        }
+
+        .product-edit-actions__buttons .btn {
+            min-height: 2.85rem;
+            padding: 0.72rem 1.15rem;
+            border-radius: 0.85rem;
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1.1;
+        }
+
+        .product-edit-actions__buttons .btn--primary {
+            box-shadow: 0 10px 24px rgba(0, 162, 89, 0.2);
+        }
+
+        .product-edit-actions__buttons .btn--outline {
+            color: var(--color-gray-200);
+            border-color: rgba(110, 140, 155, 0.45);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .taxonomy-edit-panel {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .taxonomy-table-actions {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .taxonomy-create-form {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 980px) {
+            .product-form-grid,
+            .product-form-grid--three,
+            .product-form-grid--four {
+                grid-template-columns: 1fr;
+            }
+
+            .product-edit-actions {
+                align-items: stretch;
+            }
+
+            .product-edit-actions__buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</th:block>
+
+<main layout:fragment="content">
+    <div class="art-catalog-page">
+        <section class="vac-role-hero vac-role-hero--admin reveal">
+            <img src="/uploads/arts page 4.jpg" alt="Wildlife and conservation backdrop" loading="eager" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+            <div class="vac-role-hero__overlay"></div>
+            <div class="vac-role-hero__content">
+                <p class="vac-role-hero__kicker">CONTENT STUDIO • ART CATALOG • STORYTELLING</p>
+                <h1 class="vac-role-hero__title">ART CATALOG CONTROL</h1>
+                <p class="vac-role-hero__desc">Curate products, categories, collections, and storefront narratives with premium consistency.</p>
+            </div>
+        </section>
+        <div class="admin-page-header">
+            <div class="admin-page-header__info">
+                <h1>Art Catalog</h1>
+                <p>Manage products, categories, collections, artwork details, and storefront imagery.</p>
+            </div>
+            <div class="admin-page-header__actions">
+                <button class="btn btn--primary btn--sm" onclick="document.getElementById('create-product-section').style.display = document.getElementById('create-product-section').style.display === 'none' ? 'block' : 'none'">+ Add Product</button>
+                <button class="btn btn--outline btn--sm" onclick="document.getElementById('manage-taxonomy-section').style.display = document.getElementById('manage-taxonomy-section').style.display === 'none' ? 'block' : 'none'">Manage Categories &amp; Collections</button>
+            </div>
+        </div>
+
+        <div class="admin-kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <a class="admin-kpi" th:href="@{/admin/content/products}">
+                <div class="admin-kpi__label">Products</div>
+                <div class="admin-kpi__value" th:text="${totalProducts}">0</div>
+            </a>
+            <a class="admin-kpi" href="#manage-taxonomy-section" onclick="document.getElementById('manage-taxonomy-section').style.display='block'">
+                <div class="admin-kpi__label">Categories</div>
+                <div class="admin-kpi__value" th:text="${totalCategories}">0</div>
+            </a>
+            <a class="admin-kpi" href="#manage-taxonomy-section" onclick="document.getElementById('manage-taxonomy-section').style.display='block'">
+                <div class="admin-kpi__label">Collections</div>
+                <div class="admin-kpi__value" th:text="${totalCollections}">0</div>
+            </a>
+            <a class="admin-kpi" th:href="@{/admin/content/reviews}">
+                <div class="admin-kpi__label">Pending Reviews</div>
+                <div class="admin-kpi__value" th:text="${pendingReviews}">0</div>
+            </a>
+        </div>
+
+        <div class="admin-card" id="create-product-section" style="display:none;">
+            <div class="admin-card__header">
+                <div>
+                    <h3>Create New Product</h3>
+                    <p>Use the artwork fields below to manage storefront-ready catalog entries without dropping into the database.</p>
+                </div>
+            </div>
+            <div class="admin-card__body">
+                <form th:action="@{/admin/content/products}" method="post" enctype="multipart/form-data" class="modal-form product-form-shell">
+                    <div class="product-form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input class="form-input" name="name" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Slug</label>
+                            <input class="form-input" name="slug" required />
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid">
+                        <div class="form-group product-form-field--full">
+                            <label class="form-label">Short Description</label>
+                            <input class="form-input" name="shortDescription" placeholder="Compact storefront summary" />
+                        </div>
+                        <div class="form-group product-form-field--full">
+                            <label class="form-label">Full Description</label>
+                            <textarea class="form-textarea" name="description" rows="4" placeholder="Longer artwork description for the detail page"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid product-form-grid--four">
+                        <div class="form-group">
+                            <label class="form-label">Price (USD)</label>
+                            <input class="form-input" type="number" step="0.01" min="0" name="price" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Compare-at Price</label>
+                            <input class="form-input" type="number" step="0.01" min="0" name="compareAtPrice" placeholder="Optional" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Stock Quantity</label>
+                            <input class="form-input" type="number" min="0" name="stockQuantity" value="1" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input class="form-input" type="number" step="0.01" min="0" name="weightKg" placeholder="Optional" />
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid product-form-grid--four">
+                        <div class="form-group">
+                            <label class="form-label">Inventory Type</label>
+                            <select class="form-select" name="inventoryType">
+                                <option th:each="t : ${inventoryTypes}" th:value="${t}" th:text="${t}">BATCH</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Artwork Status</label>
+                            <select class="form-select" name="artworkStatus">
+                                <option th:each="status : ${artworkStatuses}" th:value="${status}" th:text="${status}">PUBLISHED</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="categoryId">
+                                <option value="">None</option>
+                                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">Cat</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Collection</label>
+                            <select class="form-select" name="collectionId">
+                                <option value="">None</option>
+                                <option th:each="c : ${collections}" th:value="${c.id}" th:text="${c.name}">Col</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid product-form-grid--three">
+                        <div class="form-group">
+                            <label class="form-label">Artist Name</label>
+                            <input class="form-input" name="artistName" placeholder="Optional" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Medium</label>
+                            <input class="form-input" name="medium" placeholder="Oil on canvas, wood carving, mixed media..." />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dimensions</label>
+                            <input class="form-input" name="dimensions" placeholder="60cm x 90cm" />
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid">
+                        <div class="form-group product-form-field--full">
+                            <label class="form-label">Artist Story</label>
+                            <textarea class="form-textarea" name="artistStory" rows="3" placeholder="Background on the artist or maker"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Primary Image File</label>
+                            <input class="form-input" type="file" name="imageFile" accept="image/*" />
+                            <div class="product-form-help">Use this for the main storefront image.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Primary Image URL</label>
+                            <input class="form-input" name="primaryImageUrl" type="url" placeholder="https://example.com/artwork.jpg or /uploads/your-file.jpg" />
+                            <div class="product-form-help">If both a file and URL are provided, the uploaded file wins.</div>
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Additional Image Files</label>
+                            <input class="form-input" type="file" name="additionalImageFiles" accept="image/*" multiple />
+                            <div class="product-form-help">Upload multiple supporting artwork images for the detail page gallery.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Additional Image URLs</label>
+                            <textarea class="form-textarea" name="additionalImageUrls" rows="4" placeholder="One image URL per line"></textarea>
+                            <div class="product-form-help">Paste one URL per line. If the primary image is blank, the first additional image becomes primary automatically.</div>
+                        </div>
+                    </div>
+
+                    <div class="product-form-grid">
+                        <div class="form-group product-form-field--full">
+                            <label class="form-label">Shipping Note</label>
+                            <textarea class="form-textarea" name="shippingNote" rows="3" placeholder="Packing, delivery, or handling notes"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="product-checkbox-row">
+                        <label><input type="checkbox" name="available" checked /> Available on storefront</label>
+                        <label><input type="checkbox" name="featured" /> Featured</label>
+                        <label><input type="checkbox" name="shippable" checked /> Shippable</label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('create-product-section').style.display='none'">Cancel</button>
+                        <button type="submit" class="btn btn--primary btn--sm">Create Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="manage-taxonomy-section" style="display:none;">
+            <div class="admin-grid-2">
+                <div class="admin-card">
+                    <div class="admin-card__header">
+                        <div>
+                            <h3>Categories</h3>
+                            <p>Manage public product groupings.</p>
+                        </div>
+                    </div>
+                    <div class="admin-card__body">
+                        <form th:action="@{/admin/content/categories}" method="post" class="modal-form taxonomy-create-form">
+                            <div class="product-form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input class="form-input" name="name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Slug</label>
+                                    <input class="form-input" name="slug" required />
+                                </div>
+                            </div>
+                            <div class="product-form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Order</label>
+                                    <input class="form-input" type="number" name="displayOrder" value="0" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input class="form-input" name="description" />
+                                </div>
+                            </div>
+                            <div class="product-checkbox-row">
+                                <label><input type="checkbox" name="active" checked /> Active</label>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn--primary btn--xs" type="submit">Add Category</button>
+                            </div>
+                        </form>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                <tr><th>Name</th><th>Slug</th><th>Order</th><th>Active</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody>
+                                <th:block th:each="c : ${categories}">
+                                    <tr>
+                                        <td class="cell-primary" th:text="${c.name}">Cat</td>
+                                        <td class="cell-mono" th:text="${c.slug}">slug</td>
+                                        <td th:text="${c.displayOrder}">0</td>
+                                        <td><span class="chip" th:data-status="${c.active ? 'ACTIVE' : 'DISABLED'}" th:text="${c.active ? 'Active' : 'Inactive'}">Active</span></td>
+                                        <td>
+                                            <div class="taxonomy-table-actions">
+                                                <button class="btn btn--outline btn--xs" type="button" th:onclick="'document.getElementById(\'edit-cat-' + ${c.id} + '\').style.display=document.getElementById(\'edit-cat-' + ${c.id} + '\').style.display===\'table-row\'?\'none\':\'table-row\''">Edit</button>
+                                                <form th:action="@{|/admin/content/categories/${c.id}/delete|}" method="post" style="display:inline;">
+                                                    <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Delete this category?')">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="taxonomy-edit-row" th:id="'edit-cat-' + ${c.id}">
+                                        <td colspan="5">
+                                            <div class="taxonomy-edit-panel">
+                                                <form th:action="@{|/admin/content/categories/${c.id}/update|}" method="post" class="modal-form product-form-shell">
+                                                    <div class="product-form-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Name</label>
+                                                            <input class="form-input" name="name" th:value="${c.name}" required />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Description</label>
+                                                            <input class="form-input" name="description" th:value="${c.description}" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="product-form-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Order</label>
+                                                            <input class="form-input" type="number" name="displayOrder" th:value="${c.displayOrder}" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Slug</label>
+                                                            <input class="form-input" th:value="${c.slug}" readonly />
+                                                            <div class="product-form-help">Slug updates are not exposed in the current backend route.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="product-checkbox-row">
+                                                        <label><input type="checkbox" name="active" th:checked="${c.active}" /> Active</label>
+                                                    </div>
+                                                    <div class="form-actions">
+                                                        <button class="btn btn--primary btn--xs" type="submit">Save Category</button>
+                                                        <button class="btn btn--outline btn--xs" type="button" th:onclick="'document.getElementById(\'edit-cat-' + ${c.id} + '\').style.display=\'none\''">Close</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-card__header">
+                        <div>
+                            <h3>Collections</h3>
+                            <p>Group related works into promotional or seasonal sets.</p>
+                        </div>
+                    </div>
+                    <div class="admin-card__body">
+                        <form th:action="@{/admin/content/collections}" method="post" class="modal-form taxonomy-create-form">
+                            <div class="product-form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input class="form-input" name="name" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Slug</label>
+                                    <input class="form-input" name="slug" required />
+                                </div>
+                            </div>
+                            <div class="product-form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Order</label>
+                                    <input class="form-input" type="number" name="displayOrder" value="0" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input class="form-input" name="description" />
+                                </div>
+                            </div>
+                            <div class="product-checkbox-row">
+                                <label><input type="checkbox" name="active" checked /> Active</label>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn--primary btn--xs" type="submit">Add Collection</button>
+                            </div>
+                        </form>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                <tr><th>Name</th><th>Slug</th><th>Order</th><th>Active</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody>
+                                <th:block th:each="c : ${collections}">
+                                    <tr>
+                                        <td class="cell-primary" th:text="${c.name}">Col</td>
+                                        <td class="cell-mono" th:text="${c.slug}">slug</td>
+                                        <td th:text="${c.displayOrder}">0</td>
+                                        <td><span class="chip" th:data-status="${c.active ? 'ACTIVE' : 'DISABLED'}" th:text="${c.active ? 'Active' : 'Inactive'}">Active</span></td>
+                                        <td>
+                                            <div class="taxonomy-table-actions">
+                                                <button class="btn btn--outline btn--xs" type="button" th:onclick="'document.getElementById(\'edit-collection-' + ${c.id} + '\').style.display=document.getElementById(\'edit-collection-' + ${c.id} + '\').style.display===\'table-row\'?\'none\':\'table-row\''">Edit</button>
+                                                <form th:action="@{|/admin/content/collections/${c.id}/delete|}" method="post" style="display:inline;">
+                                                    <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Delete this collection?')">Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="taxonomy-edit-row" th:id="'edit-collection-' + ${c.id}">
+                                        <td colspan="5">
+                                            <div class="taxonomy-edit-panel">
+                                                <form th:action="@{|/admin/content/collections/${c.id}/update|}" method="post" class="modal-form product-form-shell">
+                                                    <div class="product-form-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Name</label>
+                                                            <input class="form-input" name="name" th:value="${c.name}" required />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Description</label>
+                                                            <input class="form-input" name="description" th:value="${c.description}" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="product-form-grid">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Order</label>
+                                                            <input class="form-input" type="number" name="displayOrder" th:value="${c.displayOrder}" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Slug</label>
+                                                            <input class="form-input" th:value="${c.slug}" readonly />
+                                                            <div class="product-form-help">Slug updates are not exposed in the current backend route.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="product-checkbox-row">
+                                                        <label><input type="checkbox" name="active" th:checked="${c.active}" /> Active</label>
+                                                    </div>
+                                                    <div class="form-actions">
+                                                        <button class="btn btn--primary btn--xs" type="submit">Save Collection</button>
+                                                        <button class="btn btn--outline btn--xs" type="button" th:onclick="'document.getElementById(\'edit-collection-' + ${c.id} + '\').style.display=\'none\''">Close</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__body" style="padding:0.75rem 1rem;">
+                <form method="get" th:action="@{/admin/content/products}" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                    <input class="form-input" name="q" placeholder="Search name, slug, artist..." th:value="${q}" style="flex:1; min-width:180px;" />
+                    <select class="form-select" name="available" style="min-width:130px;">
+                        <option value="">All availability</option>
+                        <option value="true" th:selected="${available != null && available}">Available</option>
+                        <option value="false" th:selected="${available != null && !available}">Unavailable</option>
+                    </select>
+                    <select class="form-select" name="featured" style="min-width:120px;">
+                        <option value="">All featured</option>
+                        <option value="true" th:selected="${featured != null && featured}">Featured</option>
+                        <option value="false" th:selected="${featured != null && !featured}">Non-featured</option>
+                    </select>
+                    <select class="form-select" name="categoryId" style="min-width:130px;">
+                        <option value="">All categories</option>
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${categoryId != null && categoryId == c.id}">Cat</option>
+                    </select>
+                    <button class="btn btn--outline btn--sm" type="submit">Filter</button>
+                    <a class="btn btn--ghost btn--sm" th:href="@{/admin/content/products}">Clear</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__header">
+                <h3>Products</h3>
+                <span class="chip chip--info" th:text="${#lists.size(items)} + ' items'">0</span>
+            </div>
+            <div class="admin-card__body--flush">
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr><th>Product</th><th>Category</th><th>Collection</th><th>Type</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="i : ${items}">
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                                        <img th:src="${i.primaryImageUrl != null ? i.primaryImageUrl : '/images/logo.jpg'}" alt="" style="width:48px; height:48px; border-radius:var(--radius-md); object-fit:cover; border:1px solid rgba(255,255,255,.08);" />
+                                        <div class="product-meta-stack">
+                                            <div class="cell-primary" th:text="${i.name}">Product</div>
+                                            <div class="product-meta-subtle" th:text="${i.slug}">slug</div>
+                                            <div class="product-meta-subtle" th:if="${i.artistName != null}" th:text="'Artist: ' + ${i.artistName}">Artist</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${i.category != null ? i.category.name : '-'}">-</td>
+                                <td th:text="${i.collection != null ? i.collection.name : '-'}">-</td>
+                                <td><span class="chip" th:text="${i.inventoryType}">BATCH</span></td>
+                                <td style="font-weight:600;">
+                                    <div th:text="'$' + ${i.price}">$0</div>
+                                    <div class="product-meta-subtle" th:if="${i.compareAtPrice != null}" th:text="'Compare: $' + ${i.compareAtPrice}">Compare</div>
+                                </td>
+                                <td th:text="${i.stockQuantity}">0</td>
+                                <td>
+                                    <div class="status-chip-row">
+                                        <span class="chip" th:data-status="${i.available ? 'ACTIVE' : 'DISABLED'}" th:text="${i.available ? 'Available' : 'Unavailable'}">Available</span>
+                                        <span class="chip chip--info" th:text="${i.artworkStatus}">PUBLISHED</span>
+                                        <span th:if="${i.featured}" class="chip chip--warning">Featured</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:0.35rem;">
+                                        <button class="btn btn--outline btn--xs" type="button" th:onclick="'document.getElementById(\'edit-prod-' + ${i.id} + '\').style.display=document.getElementById(\'edit-prod-' + ${i.id} + '\').style.display===\'table-row\'?\'none\':\'table-row\''">Edit</button>
+                                        <form th:action="@{|/admin/content/products/${i.id}/delete|}" method="post" style="display:inline;">
+                                            <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Delete this product?')">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="product-edit-row" th:id="'edit-prod-' + ${i.id}">
+                                <td colspan="8">
+                                    <div class="product-edit-panel">
+                                        <form th:action="@{|/admin/content/products/${i.id}/update|}" method="post" enctype="multipart/form-data" class="modal-form product-form-shell product-edit-shell">
+                                            <div class="product-edit-header">
+                                                <div>
+                                                    <h4>Edit Artwork</h4>
+                                                    <p>Refine gallery images, catalog metadata, and storefront visibility for this product.</p>
+                                                </div>
+                                                <span class="chip chip--info" th:text="${i.name}">Product</span>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group">
+                                                    <label class="form-label">Name</label>
+                                                    <input class="form-input" name="name" th:value="${i.name}" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Slug</label>
+                                                    <input class="form-input" th:value="${i.slug}" readonly />
+                                                    <div class="product-form-help">Slug updates are not exposed in the current backend route.</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group product-form-field--full">
+                                                    <label class="form-label">Short Description</label>
+                                                    <input class="form-input" name="shortDescription" th:value="${i.shortDescription}" />
+                                                </div>
+                                                <div class="form-group product-form-field--full">
+                                                    <label class="form-label">Full Description</label>
+                                                    <textarea class="form-textarea" name="description" rows="4" th:text="${i.description}"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid product-form-grid--four">
+                                                <div class="form-group">
+                                                    <label class="form-label">Price (USD)</label>
+                                                    <input class="form-input" type="number" step="0.01" min="0" name="price" th:value="${i.price}" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Compare-at Price</label>
+                                                    <input class="form-input" type="number" step="0.01" min="0" name="compareAtPrice" th:value="${i.compareAtPrice}" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Stock Quantity</label>
+                                                    <input class="form-input" type="number" min="0" name="stockQuantity" th:value="${i.stockQuantity}" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Weight (kg)</label>
+                                                    <input class="form-input" type="number" step="0.01" min="0" name="weightKg" th:value="${i.weightKg}" />
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid product-form-grid--four">
+                                                <div class="form-group">
+                                                    <label class="form-label">Inventory Type</label>
+                                                    <select class="form-select" name="inventoryType">
+                                                        <option th:each="t : ${inventoryTypes}" th:value="${t}" th:text="${t}" th:selected="${i.inventoryType == t}">BATCH</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Artwork Status</label>
+                                                    <select class="form-select" name="artworkStatus">
+                                                        <option th:each="status : ${artworkStatuses}" th:value="${status}" th:text="${status}" th:selected="${i.artworkStatus == status}">PUBLISHED</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Category</label>
+                                                    <select class="form-select" name="categoryId">
+                                                        <option value="">None</option>
+                                                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${i.category != null && c.id == i.category.id}">Cat</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Collection</label>
+                                                    <select class="form-select" name="collectionId">
+                                                        <option value="">None</option>
+                                                        <option th:each="c : ${collections}" th:value="${c.id}" th:text="${c.name}" th:selected="${i.collection != null && c.id == i.collection.id}">Col</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid product-form-grid--three">
+                                                <div class="form-group">
+                                                    <label class="form-label">Artist Name</label>
+                                                    <input class="form-input" name="artistName" th:value="${i.artistName}" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Medium</label>
+                                                    <input class="form-input" name="medium" th:value="${i.medium}" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Dimensions</label>
+                                                    <input class="form-input" name="dimensions" th:value="${i.dimensions}" />
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group product-form-field--full">
+                                                    <label class="form-label">Artist Story</label>
+                                                    <textarea class="form-textarea" name="artistStory" rows="3" th:text="${i.artistStory}"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group">
+                                                    <label class="form-label">Primary Image File</label>
+                                                    <input class="form-input" type="file" name="imageFile" accept="image/*" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Primary Image URL</label>
+                                                    <input class="form-input" type="url" name="primaryImageUrl" th:value="${i.primaryImageUrl}" placeholder="https://example.com/artwork.jpg or /uploads/your-file.jpg" />
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group">
+                                                    <label class="form-label">Additional Image Files</label>
+                                                    <input class="form-input" type="file" name="additionalImageFiles" accept="image/*" multiple />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Additional Image URLs</label>
+                                                    <textarea class="form-textarea" name="additionalImageUrls" rows="4" th:text="${i.additionalImagesText}" placeholder="One image URL per line"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div th:if="${!#lists.isEmpty(i.additionalImages)}" class="product-form-grid">
+                                                <div class="form-group product-form-field--full">
+                                                    <label class="form-label">Current Additional Gallery</label>
+                                                    <div class="product-gallery-preview product-gallery-preview--compact">
+                                                        <div th:each="imageUrl : ${i.additionalImages}" class="product-gallery-preview__tile">
+                                                            <img th:src="${imageUrl}" alt="Additional artwork image" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none';" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-form-grid">
+                                                <div class="form-group product-form-field--full">
+                                                    <label class="form-label">Shipping Note</label>
+                                                    <textarea class="form-textarea" name="shippingNote" rows="3" th:text="${i.shippingNote}"></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-checkbox-row">
+                                                <label><input type="checkbox" name="available" th:checked="${i.available}" /> Available on storefront</label>
+                                                <label><input type="checkbox" name="featured" th:checked="${i.featured}" /> Featured</label>
+                                                <label><input type="checkbox" name="shippable" th:checked="${i.shippable}" /> Shippable</label>
+                                            </div>
+
+                                            <div class="product-edit-actions">
+                                                <span class="product-edit-actions__note">Review the gallery, pricing, and storefront status, then save when this artwork is ready for customers.</span>
+                                                <div class="product-edit-actions__buttons">
+                                                    <button class="btn btn--outline" type="button" th:onclick="'document.getElementById(\'edit-prod-' + ${i.id} + '\').style.display=\'none\''">Close</button>
+                                                    <button class="btn btn--primary" type="submit">Save Product</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                        <tr th:if="${#lists.isEmpty(items)}">
+                            <td colspan="8" class="admin-empty">
+                                <div class="admin-empty__icon">ART</div>
+                                <div class="admin-empty__text">No products yet. Add your first product above.</div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

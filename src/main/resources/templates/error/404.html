@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+    <title>Page Not Found</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <section class="error-page">
+        <div class="error-page__inner">
+            <svg width="120" height="48" viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden="true" style="margin: 0 auto 1rem;">
+                <path fill="#00A651" fill-opacity="0.5" d="M0,80 L160,28 L260,55 L380,15 L520,52 L660,8 L800,40 L920,18 L1060,48 L1200,22 L1200,80 Z"/>
+            </svg>
+            <div class="error-page__code">404</div>
+            <h1 class="error-page__title">We've wandered off the path.</h1>
+            <p class="error-page__body">
+                The page you're looking for doesn't exist or has been moved. Let's find you a way back to the volcano.
+            </p>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                <a th:href="@{/}" class="btn btn--primary">Return Home</a>
+                <a th:href="@{/experiences}" class="btn btn--outline">Browse Experiences</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

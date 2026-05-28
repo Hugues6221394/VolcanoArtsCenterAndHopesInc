@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head>
+    <title>Create Client Account</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <section class="vac-client-register">
+        <div class="vac-client-register__media">
+            <img src="/uploads/Home_virunga.png" alt="Volcano hills in Rwanda" loading="eager" onerror="this.onerror=null;this.src='/uploads/volcano.jpg';" />
+            <div class="vac-client-register__media-overlay"></div>
+            <div class="vac-client-register__media-copy">
+                <p>VOLCANO ARTS CLIENT ACCESS</p>
+                <h1>CREATE YOUR CLIENT ACCOUNT</h1>
+                <ul>
+                    <li>Book experiences and track itineraries</li>
+                    <li>Order original artworks and monitor delivery</li>
+                    <li>Chat live with our admin team</li>
+                    <li>Receive notifications from one dashboard</li>
+                </ul>
+            </div>
+        </div>
+        <div class="vac-client-register__form-wrap reveal">
+            <div th:if="${successMessage}" class="vac-client-register__notice" th:text="${successMessage}"></div>
+            <form th:action="@{/register}" method="post" class="vac-client-register__form">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">FIRST NAME</label><input class="form-input" name="firstName" required /></div>
+                    <div class="form-group"><label class="form-label">LAST NAME</label><input class="form-input" name="lastName" required /></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">EMAIL</label><input class="form-input" name="email" type="email" required /></div>
+                    <div class="form-group"><label class="form-label">PHONE</label><input class="form-input" name="phone" /></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">COUNTRY</label><input class="form-input" name="country" value="Rwanda" /></div>
+                    <div class="form-group"><label class="form-label">PASSWORD</label><input class="form-input" name="password" type="password" minlength="8" required /></div>
+                </div>
+                <button class="btn btn--primary" type="submit">CREATE CLIENT ACCOUNT</button>
+            </form>
+            <p class="vac-client-register__sign-in">
+                Already have an account? <a th:href="@{/login}">SIGN IN</a>
+            </p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

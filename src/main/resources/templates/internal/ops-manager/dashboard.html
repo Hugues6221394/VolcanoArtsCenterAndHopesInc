@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Operations Dashboard</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/ops/dashboard}">Operations</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Dashboard</span>
+</th:block>
+
+<main layout:fragment="content">
+    <section class="vac-role-hero vac-role-hero--admin reveal" style="min-height:48vh; align-items:flex-end;">
+        <img src="/uploads/Home_wildlife.png" alt="Rwanda operations landscape" loading="eager" onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+        <div class="vac-role-hero__overlay" style="background:linear-gradient(165deg, rgba(0,28,14,0.25) 0%, rgba(0,14,7,0.93) 100%);"></div>
+        <div class="vac-role-hero__content" style="max-width:1300px; margin:0 auto; padding:2.5rem 2rem;">
+            <p class="vac-role-hero__kicker">Operations Command &bull; Fulfillment &bull; Logistics</p>
+            <h1 class="vac-role-hero__title" style="font-size:clamp(3rem,8vw,8rem); font-family:var(--font-ui); font-weight:800; letter-spacing:-0.03em; line-height:0.9;">OPERATIONS<br><span style="color:var(--vac-gold);">LOGISTICS</span></h1>
+            <p class="vac-role-hero__desc" style="max-width:520px; margin-top:0.75rem;">Move every order, tour request, inquiry, and talent application with total clarity.</p>
+            <div class="vac-client-hero-strip">
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalBookings}">0</strong>
+                    <span>Tour Bookings</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalOrders}">0</strong>
+                    <span>Shipping Orders</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalInquiries}">0</strong>
+                    <span>Inquiries</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="admin-page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <div class="admin-page-header__info">
+            <h1>Logistics Overview</h1>
+            <p style="color:var(--vac-muted);">Live tracking of fulfillment, bookings, and operator assignments.</p>
+        </div>
+        <div class="admin-page-header__actions">
+            <a class="btn btn--primary btn--sm" th:href="@{/admin/ops/bookings}">Manage Bookings</a>
+        </div>
+    </div>
+
+    <!-- Ultra Premium KPIs -->
+    <div class="admin-kpi-grid reveal-stagger" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;">
+        <a class="admin-kpi" th:href="@{/admin/ops/bookings}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Total Bookings</div>
+            <div class="admin-kpi__value" data-count th:text="${totalBookings}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-gold); font-weight:700;" th:text="${pendingBookingsCount + ' pending'}">0 pending</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/shipping-orders}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Shipping Orders</div>
+            <div class="admin-kpi__value" data-count th:text="${totalOrders}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);" th:text="${processingOrdersCount + ' processing'}">0 processing</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/contact-inquiries}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Inquiries</div>
+            <div class="admin-kpi__value" data-count th:text="${totalInquiries}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);" th:text="${openInquiriesCount + ' open'}">0 open</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/operator-requests}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Operator Requests</div>
+            <div class="admin-kpi__value" data-count th:text="${openOperatorRequestsCount}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Needs Assignment</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/ops/talent-applications}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Talent Queue</div>
+            <div class="admin-kpi__value" data-count th:text="${pendingTalentApplications}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Pending Review</div>
+        </a>
+    </div>
+
+    <!-- Analytics Charts Grid -->
+    <div style="margin-bottom:2.5rem;">
+        <div class="admin-chart-container reveal">
+            <h3 style="font-family:var(--font-display); font-size:1.4rem; color:var(--vac-green-900); margin-bottom:0.5rem;">Fulfillment Pipeline</h3>
+            <p style="color:var(--vac-muted); font-size:0.9rem; margin-bottom:1.5rem;">Current order and booking status distribution.</p>
+            <div style="position:relative; height:300px; width:100%; max-width:600px; margin:0 auto;">
+                <canvas id="fulfillmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Pipelines -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:3rem;">
+        <div class="admin-panel reveal">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Booking Pipeline</h3>
+                    <p class="admin-panel__sub">Current guest experience flow.</p>
+                </div>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Pending</span>
+                    <strong th:text="${pendingBookingsCount}" style="color:var(--vac-gold);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Confirmed</span>
+                    <strong th:text="${confirmedBookingsCount}" style="color:var(--vac-green);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="font-weight:700;">Completed</span>
+                    <strong th:text="${completedBookingsCount}" style="color:var(--vac-ink);">0</strong>
+                </div>
+            </div>
+        </div>
+        <div class="admin-panel reveal" style="animation-delay:0.1s;">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Order Fulfillment</h3>
+                    <p class="admin-panel__sub">Current physical shipments.</p>
+                </div>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Processing</span>
+                    <strong th:text="${processingOrdersCount}" style="color:var(--vac-gold);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Shipped / Transit</span>
+                    <strong th:text="${shippedOrdersCount}" style="color:var(--vac-green);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="font-weight:700;">Delivered</span>
+                    <strong th:text="${deliveredOrdersCount}" style="color:var(--vac-ink);">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Queues -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:3rem;">
+        <div class="admin-panel reveal">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Recent Bookings</h3>
+                    <p class="admin-panel__sub">Latest additions to the guest queue.</p>
+                </div>
+                <a th:href="@{/admin/ops/bookings}" class="btn btn--ghost btn--sm">View All</a>
+            </div>
+            <div style="padding:1.5rem; display:grid; gap:1rem;">
+                <a th:each="b : ${recentBookings}" th:href="@{/admin/ops/bookings}" style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid var(--vac-line); border-radius:var(--vac-radius-sm); text-decoration:none; color:var(--vac-ink);">
+                    <div>
+                        <strong th:text="${b.bookingReference}" style="display:block; font-size:1.1rem;">REF</strong>
+                        <span th:text="${b.experience != null ? b.experience.title : b.guestName}" style="color:var(--vac-muted); font-size:0.85rem;">Experience</span>
+                    </div>
+                    <span th:text="${b.status}" style="font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; background:var(--vac-canvas); border-radius:999px;">PENDING</span>
+                </a>
+                <p style="text-align:center; color:var(--vac-muted);" th:if="${#lists.isEmpty(recentBookings)}">No recent bookings.</p>
+            </div>
+        </div>
+
+        <div class="admin-panel reveal" style="animation-delay:0.1s;">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Recent Orders</h3>
+                    <p class="admin-panel__sub">Latest additions to fulfillment.</p>
+                </div>
+                <a th:href="@{/admin/ops/shipping-orders}" class="btn btn--ghost btn--sm">View All</a>
+            </div>
+            <div style="padding:1.5rem; display:grid; gap:1rem;">
+                <a th:each="o : ${recentOrders}" th:href="@{/admin/ops/shipping-orders}" style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid var(--vac-line); border-radius:var(--vac-radius-sm); text-decoration:none; color:var(--vac-ink);">
+                    <div>
+                        <strong th:text="${o.orderReference}" style="display:block; font-size:1.1rem;">REF</strong>
+                        <span th:text="${o.recipientName + ' / ' + o.country}" style="color:var(--vac-muted); font-size:0.85rem;">Recipient</span>
+                    </div>
+                    <span th:text="${o.status}" style="font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; background:var(--vac-canvas); border-radius:999px;">PENDING</span>
+                </a>
+                <p style="text-align:center; color:var(--vac-muted);" th:if="${#lists.isEmpty(recentOrders)}">No recent orders.</p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

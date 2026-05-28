@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Audit Log</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">›</span>
+    <span>Audit Log</span>
+</th:block>
+<main layout:fragment="content">
+
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Audit Log</h1>
+            <p>Complete record of all administrative actions on the platform.</p>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card__header">
+            <h3>All Events</h3>
+            <span class="chip chip--info" th:text="${#lists.size(auditEvents)} + ' events'">0 events</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Actor</th>
+                        <th>Event Type</th>
+                        <th>Entity</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${auditEvents}">
+                        <td th:text="${e.createdAt}">2026-01-01</td>
+                        <td class="cell-mono" th:text="${e.actorEmail}">admin@email</td>
+                        <td><span class="chip chip--primary" th:text="${e.eventType}">EVENT</span></td>
+                        <td th:text="${e.entityType}">Entity</td>
+                        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" th:text="${e.details}">details</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(auditEvents)}">
+                        <td colspan="5" class="admin-empty">
+                            <div class="admin-empty__icon">📋</div>
+                            <div class="admin-empty__text">No audit events recorded yet</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

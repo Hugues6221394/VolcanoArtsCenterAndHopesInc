@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/admin-base}">
+<head><title>Contact Inquiries</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">›</span><span>Contact Inquiries</span></th:block>
+<main layout:fragment="content">
+    <div class="admin-page-header"><div class="admin-page-header__info"><h1>Contact Inquiries</h1><p>Manage and respond to visitor contact messages.</p></div></div>
+    <div class="admin-card">
+        <div class="admin-card__header"><h3>All Inquiries</h3><span class="chip chip--info" th:text="${#lists.size(items)} + ' total'">0</span></div>
+        <div class="admin-card__body--flush"><div class="admin-table-wrap">
+            <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody>
+            <tr th:each="i : ${items}">
+                <td class="cell-primary" th:text="${i.name}">Name</td>
+                <td class="cell-mono" th:text="${i.email}">email</td>
+                <td th:text="${i.subject ?: '-'}">Subject</td>
+                <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" th:text="${i.message}">Message</td>
+                <td><span class="chip" th:data-status="${i.status}" th:text="${i.status}">NEW</span></td>
+                <td th:text="${i.createdAt}">2026-01-01</td>
+                <td>
+                    <form th:action="@{|/admin/ops/contact-inquiries/${i.id}/status|}" method="post" style="display:flex;gap:.35rem;align-items:center;">
+                        <select class="form-select" name="status" style="min-width:110px;padding:.4rem;"><option th:each="s : ${T(com.volcanoartscenter.platform.shared.model.ContactInquiry.InquiryStatus).values()}" th:value="${s}" th:text="${s}" th:selected="${s == i.status}">S</option></select>
+                        <button class="btn btn--outline btn--xs" type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(items)}"><td colspan="7" class="admin-empty"><div class="admin-empty__icon">✉️</div><div class="admin-empty__text">No inquiries yet</div></td></tr>
+            </tbody></table>
+        </div></div>
+    </div>
+</main>
+</body>
+</html>

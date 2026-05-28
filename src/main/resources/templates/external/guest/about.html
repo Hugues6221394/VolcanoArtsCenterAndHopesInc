@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+    <title>About Us — Volcano Arts Center</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <!-- ═══════════════════════════════════════
+         ABOUT HERO (compact)
+         ═══════════════════════════════════════ -->
+    <section class="hero-golden hero-golden--compact hero-golden--about hero-golden--fitted vac-cinematic-hero reveal">
+        <div class="hero-golden__bg vac-cinematic-hero__bg">
+            <img class="hero-slide active vac-cinematic-hero__img" src="/uploads/experiences-bisoke.jpeg" alt="Volcanic crater lake near Musanze"
+                 onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+            <img class="hero-slide vac-cinematic-hero__img" src="/uploads/experiences-village.jpeg" alt="Rwandan village and cultural heritage" />
+            <div class="hero-golden__veil vac-cinematic-hero__veil vac-cinematic-hero__veil--light"></div>
+        </div>
+        <div class="hero-golden__content">
+            <p class="hero-golden__kicker">Our Heritage &amp; Mission</p>
+            <h1 class="hero-golden__title hero-golden__title--compact">A cultural institution in Musanze.</h1>
+            <div class="hero-golden__bottom">
+                <p class="hero-golden__sub">We're a registered non-profit working at the intersection of art, tourism, and community development — ensuring Rwandan culture empowers the people who create it.</p>
+                <div class="hero-golden__actions">
+                    <a href="#departments" class="btn-hero-primary">Explore Departments</a>
+                    <a th:href="@{/contact}" class="btn-hero-outline">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vac-focus-band reveal">
+        <div class="container">
+            <div class="vac-focus-band__head">
+                <p class="vac-focus-band__eyebrow">How The Platform Works</p>
+                <h2>Clear pathways from discovery to real community impact.</h2>
+                <p>We designed the platform so visitors quickly understand where to start and how each action supports artists and local families.</p>
+            </div>
+            <div class="vac-focus-grid">
+                <a class="vac-focus-card" th:href="@{/experiences}">
+                    <span class="vac-focus-card__label">STEP 1</span>
+                    <h3>Choose Experiences</h3>
+                    <p>Browse cultural and conservation tours with transparent trip details.</p>
+                </a>
+                <a class="vac-focus-card" th:href="@{/art-store}">
+                    <span class="vac-focus-card__label">STEP 2</span>
+                    <h3>Shop Authentic Art</h3>
+                    <p>Buy from curated Rwandan creators with clear product storytelling.</p>
+                </a>
+                <a class="vac-focus-card" th:href="@{/register}">
+                    <span class="vac-focus-card__label">STEP 3</span>
+                    <h3>Create Your Account</h3>
+                    <p>Track bookings, orders, messages, and notifications from one dashboard.</p>
+                </a>
+                <a class="vac-focus-card" th:href="@{/conservation}">
+                    <span class="vac-focus-card__label">STEP 4</span>
+                    <h3>Support Conservation</h3>
+                    <p>Extend your visit impact through focused community programs.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         STORY / MISSION / VISION
+         ═══════════════════════════════════════ -->
+    <section class="section">
+        <div class="container" style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start;">
+            <div class="reveal">
+                <span class="section-label">Our Story</span>
+                <h2 class="section-title">Founded in 2012 to give Rwandan craft a permanent home.</h2>
+                <p style="color:var(--color-ink-soft); font-size:1.05rem; line-height:1.75; margin-bottom:1.25rem;">
+                    Volcano Arts Center grew out of a frustration: the artists of northern Rwanda — the painters, weavers, sculptors, drummers — had no shared place to sell their work, host visitors, or pass down their craft to a new generation. Tourism revenue flowed past them. Galleries in Kigali took half the price. Most stories of Rwandan art were told by other people.
+                </p>
+                <p style="color:var(--color-ink-soft); font-size:1.05rem; line-height:1.75;">
+                    So we built one place. Today the Center hosts seven departments under one roof — an art store, an experience programme, a conservation arm, a talent pipeline, a partnerships desk, hospitality, and cultural education — all funded by the same business model: visitors come, buy, and leave a community better than they found it.
+                </p>
+            </div>
+            <div class="reveal" style="display:grid; gap:1.5rem;">
+                <div style="background:var(--color-paper); border:1px solid var(--color-line); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm);">
+                    <span class="section-label" style="margin-bottom:.5rem;">Mission</span>
+                    <p style="color:var(--color-ink-soft); margin:0; font-size:1rem; line-height:1.7;">To make Rwandan art and cultural experience accessible to the world, while ensuring the people who create them are the primary beneficiaries.</p>
+                </div>
+                <div style="background:var(--color-paper); border:1px solid var(--color-line); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm);">
+                    <span class="section-label" style="margin-bottom:.5rem;">Vision</span>
+                    <p style="color:var(--color-ink-soft); margin:0; font-size:1rem; line-height:1.7;">A future where Musanze is recognised globally as a cultural capital — and where every visit funds the conservation of the volcanoes that brought visitors here in the first place.</p>
+                </div>
+                <div style="background:var(--gradient-primary); color:#fff; border-radius:var(--radius-lg); padding:2rem;">
+                    <span class="section-label" style="margin-bottom:.5rem; color:rgba(255,255,255,.85);">By the numbers</span>
+                    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1rem;">
+                        <div>
+                            <div style="font-family:var(--font-display); font-size:2rem; font-weight:600; line-height:1;">14</div>
+                            <div style="font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; opacity:.8; margin-top:.3rem;">Years</div>
+                        </div>
+                        <div>
+                            <div style="font-family:var(--font-display); font-size:2rem; font-weight:600; line-height:1;">120+</div>
+                            <div style="font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; opacity:.8; margin-top:.3rem;">Artists</div>
+                        </div>
+                        <div>
+                            <div style="font-family:var(--font-display); font-size:2rem; font-weight:600; line-height:1;">7</div>
+                            <div style="font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; opacity:.8; margin-top:.3rem;">Departments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         DEPARTMENTS — editorial blocks
+         ═══════════════════════════════════════ -->
+    <section class="section section--band" id="departments">
+        <div class="container">
+            <div style="max-width:760px; margin-bottom:3rem;">
+                <span class="section-label reveal">Our Departments</span>
+                <h2 class="section-title reveal">Seven programmes of work, one shared model.</h2>
+                <p class="section-subtitle reveal">Each department has its own focus, leadership, and metrics — but they all share the same revenue mechanism: visitors come, buy or book, and the proceeds fund everything else.</p>
+            </div>
+
+            <!-- 01 — Art Store -->
+            <div class="dept-block reveal" id="art-store">
+                <div class="dept-block__media">
+                    <img src="/uploads/arts page 4.jpg" alt="Art store" loading="lazy" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 01</span>
+                    <h3 class="dept-block__title">Art Store</h3>
+                    <p class="dept-block__intro">Our flagship: a curated marketplace for original Rwandan art — paintings, sculptures, woodwork, basketry, and the geometric Imigongo tradition unique to this region.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>What we do</h4>
+                            <p>Source, photograph, and represent original works by named artists in Musanze. Each listing carries the artist's story; revenue split is transparent and tilted to the maker.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>For visitors</h4>
+                            <p>Browse online with worldwide shipping (Stripe / MTN MoMo / Bank Transfer). Or visit the Center in person and meet the artist whose work you're buying.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Painting</span><span>Sculpture</span><span>Imigongo</span><span>Basketry</span><span>Woodwork</span><span>Worldwide shipping</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 02 — Cultural Experiences -->
+            <div class="dept-block dept-block--reverse reveal" id="experiences">
+                <div class="dept-block__media">
+                    <img src="/uploads/media and dance.jpg" alt="Cultural experience" loading="lazy" onerror="this.onerror=null;this.src='/uploads/talent and media.jpg';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 02</span>
+                    <h3 class="dept-block__title">Cultural Experiences</h3>
+                    <p class="dept-block__intro">Half-day to multi-day programmes that put visitors inside village life — guided by hosts who grew up here, with capacity managed transparently and a clear refund window.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>What we do</h4>
+                            <p>Design and lead immersive experiences: dance and storytelling evenings, traditional cooking with grandmothers, basket-weaving workshops, conservation hikes around Volcanoes National Park, and bespoke multi-day itineraries.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>How it works</h4>
+                            <p>Book online, pay a 50% deposit (refundable up to 7 days before), arrive, and meet your host. Each experience has a managed group size — when a slot is full, it's full.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Dance &amp; storytelling</span><span>Traditional cooking</span><span>Village walks</span><span>Conservation hikes</span><span>Custom itineraries</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 03 — Conservation -->
+            <div class="dept-block reveal" id="conservation">
+                <div class="dept-block__media">
+                    <img src="/uploads/conservation3.jpg" alt="Conservation" loading="lazy" onerror="this.onerror=null;this.src='/uploads/conservation2.png';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 03</span>
+                    <h3 class="dept-block__title">Conservation</h3>
+                    <p class="dept-block__intro">Tree planting, water access, and education projects in the villages adjacent to Volcanoes National Park — funded by donations and structured around tiered impact.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>How donations work</h4>
+                            <p>Donate one-off or set up a recurring contribution (monthly, quarterly, annually). Every donation generates a VAC-YYYY-NNNNN reference and a downloadable PDF receipt; we publish quarterly impact reports.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>Active projects</h4>
+                            <p>Reforestation along the park buffer zone, school sanitation upgrades, and youth conservation education. Donors choose which campaign to fund.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Reforestation</span><span>Water access</span><span>Schools</span><span>Wildlife buffer</span><span>Quarterly reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 04 — Talent Program -->
+            <div class="dept-block dept-block--reverse reveal" id="talent">
+                <div class="dept-block__media">
+                    <img src="/uploads/talent and media.jpg" alt="Talent program" loading="lazy" onerror="this.onerror=null;this.src='/uploads/media page.jpg';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 04</span>
+                    <h3 class="dept-block__title">Talent Program</h3>
+                    <p class="dept-block__intro">A structured pipeline for the next generation of Rwandan artists — bringing them off the street and into a professional system that pays.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>How it works</h4>
+                            <p>Young artists apply through our online portal. Accepted applicants get a portfolio shoot, mentorship from senior artists, and their first paid commission. The strongest get represented in our store.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>What we measure</h4>
+                            <p>Number of paid commissions, time-to-first-sale, and percentage of program graduates with sustained income within twelve months.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Apply online</span><span>Portfolio shoot</span><span>Mentorship</span><span>Paid commissions</span><span>Store representation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 05 — Tour Operator Partnerships -->
+            <div class="dept-block reveal" id="partnerships">
+                <div class="dept-block__media">
+                    <img src="/uploads/tours.png" alt="Tour operator partnerships" loading="lazy" onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 05</span>
+                    <h3 class="dept-block__title">Tour Operator Partnerships</h3>
+                    <p class="dept-block__intro">B2B integration for tour operators bringing groups to the volcanoes — partner pricing, group bookings, and a JWT-secured API for itinerary syncing.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>What partners get</h4>
+                            <p>Authenticated API access (RS256 JWT), partner-tier pricing on experiences and group bookings, a dedicated portal, and a single point of contact at the Center.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>Who we work with</h4>
+                            <p>Specialist gorilla-trekking operators, cultural-tourism agencies, conservation-focused travel brands, and educational tour groups.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Partner API</span><span>Group bookings</span><span>Partner pricing</span><span>Operator portal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 06 — Hospitality -->
+            <div class="dept-block dept-block--reverse reveal" id="hospitality">
+                <div class="dept-block__media">
+                    <img src="/uploads/Home_virunga.png" alt="Hospitality" loading="lazy" onerror="this.onerror=null;this.src='/uploads/homepage.png';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 06</span>
+                    <h3 class="dept-block__title">Hospitality</h3>
+                    <p class="dept-block__intro">A small, deliberately modest hosting operation — vetted home-stays and community guesthouses in Musanze for visitors who want to stay longer than a day-trip.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>What we offer</h4>
+                            <p>Curated home-stays with families involved in the Center, traditional catering, local-led transfers from Kigali airport, and trip-planning support before you arrive.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>Why community-hosted</h4>
+                            <p>Hotel revenue leaves the village. Home-stay revenue stays. Every booking through Hospitality circulates back into the same community network that runs the Center.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Home-stays</span><span>Catering</span><span>Airport transfers</span><span>Trip planning</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 07 — Cultural Education -->
+            <div class="dept-block reveal" id="education">
+                <div class="dept-block__media">
+                    <img src="/uploads/media page.jpg" alt="Cultural education" loading="lazy" onerror="this.onerror=null;this.src='/uploads/media and dance.png';" />
+                </div>
+                <div>
+                    <span class="section-label">Department · 07</span>
+                    <h3 class="dept-block__title">Cultural Education</h3>
+                    <p class="dept-block__intro">Workshops, school visits, and our running blog of long-form essays on Rwandan craft history — keeping the knowledge alive and in circulation.</p>
+                    <div class="dept-block__sections">
+                        <div class="dept-block__section">
+                            <h4>What we publish</h4>
+                            <p>Essays on the history of Imigongo, the symbolism of Agaseke baskets, the role of dance in Rwandan storytelling, and visiting-artist interviews. All free.</p>
+                        </div>
+                        <div class="dept-block__section">
+                            <h4>What we run</h4>
+                            <p>School visits in northern Rwanda, weekend workshops at the Center, and a running residency for visiting researchers and educators.</p>
+                        </div>
+                        <div class="dept-block__chips">
+                            <span>Workshops</span><span>School visits</span><span>Long-form essays</span><span>Visiting researchers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         CTA STRIP
+         ═══════════════════════════════════════ -->
+    <section class="cta-strip">
+        <div class="cta-strip__inner">
+            <div>
+                <h2 class="cta-strip__title">Want to work with us?</h2>
+                <p class="cta-strip__sub">Whether you're a visitor planning a trip, an artist applying to the Talent Program, or a tour operator looking to partner — start here.</p>
+            </div>
+            <div style="display:flex; gap:.75rem; flex-wrap:wrap;">
+                <a th:href="@{/contact}" class="btn btn--primary btn--lg">Get in touch</a>
+                <a th:href="@{/tour-operators/request}" class="btn btn--outline btn--lg" style="color:#fff;border-color:rgba(255,255,255,.4);">Become a partner</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

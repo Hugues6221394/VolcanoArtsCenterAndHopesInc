@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Overrides &amp; Refunds</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">›</span>
+    <span>Overrides &amp; Refunds</span>
+</th:block>
+<main layout:fragment="content">
+
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Overrides &amp; Refunds</h1>
+            <p>Override booking statuses, manage order statuses, and process refunds.</p>
+        </div>
+    </div>
+
+    <!-- Bookings Override -->
+    <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card__header">
+            <h3>📅 Bookings</h3>
+            <span class="chip chip--info" th:text="${#lists.size(bookings)} + ' total'">0</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Reference</th><th>Guest</th><th>Status</th><th>Override</th></tr></thead>
+                    <tbody>
+                    <tr th:each="b : ${bookings}">
+                        <td class="cell-mono" th:text="${b.bookingReference}">BOOK</td>
+                        <td class="cell-primary" th:text="${b.guestEmail}">guest@email</td>
+                        <td><span class="chip" th:data-status="${b.status}" th:text="${b.status}">PENDING</span></td>
+                        <td>
+                            <form th:action="@{|/admin/bookings/${b.id}/override|}" method="post" style="display:flex; gap:0.4rem; align-items:center;">
+                                <select class="form-select" name="status" style="min-width:120px; padding:0.4rem;">
+                                    <option th:each="s : ${T(com.volcanoartscenter.platform.shared.model.Booking.BookingStatus).values()}" th:value="${s}" th:text="${s}" th:selected="${s == b.status}">STATUS</option>
+                                </select>
+                                <input class="form-input" name="adminNotes" placeholder="Note" style="max-width:160px; padding:0.4rem;" />
+                                <button class="btn btn--outline btn--xs" type="submit">Override</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(bookings)}"><td colspan="4" style="text-align:center; color:var(--color-gray-500); padding:2rem;">No bookings</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipping Orders -->
+    <div class="admin-card" style="margin-bottom:1.5rem;">
+        <div class="admin-card__header">
+            <h3>📦 Shipping Orders</h3>
+            <span class="chip chip--info" th:text="${#lists.size(orders)} + ' total'">0</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>Reference</th><th>Recipient</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <tr th:each="o : ${orders}">
+                        <td class="cell-mono" th:text="${o.orderReference}">SHIP</td>
+                        <td class="cell-primary" th:text="${o.recipientEmail}">user@email</td>
+                        <td><span class="chip" th:data-status="${o.status}" th:text="${o.status}">PENDING</span></td>
+                        <td><span class="chip" th:data-status="${o.paymentStatus}" th:text="${o.paymentStatus}">UNPAID</span></td>
+                        <td>
+                            <div style="display:grid; gap:0.4rem;">
+                                <form th:action="@{|/admin/orders/${o.id}/status|}" method="post" style="display:flex; gap:0.35rem; align-items:center;">
+                                    <select class="form-select" name="status" style="min-width:120px; padding:0.4rem;">
+                                        <option th:each="s : ${T(com.volcanoartscenter.platform.shared.model.ShippingOrder.OrderStatus).values()}" th:value="${s}" th:text="${s}" th:selected="${s == o.status}">STATUS</option>
+                                    </select>
+                                    <input class="form-input" name="trackingNumber" placeholder="Tracking #" style="max-width:130px; padding:0.4rem;" />
+                                    <input class="form-input" name="adminNotes" placeholder="Note" style="max-width:130px; padding:0.4rem;" />
+                                    <button class="btn btn--outline btn--xs" type="submit">Update</button>
+                                </form>
+                                <form th:action="@{|/admin/orders/${o.id}/refund|}" method="post" style="display:flex; gap:0.35rem; align-items:center;">
+                                    <input class="form-input" name="disputeReason" placeholder="Refund reason" required style="padding:0.4rem;" />
+                                    <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Process refund for this order?')">Refund</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}"><td colspan="5" style="text-align:center; color:var(--color-gray-500); padding:2rem;">No shipping orders</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donations -->
+    <div class="admin-card">
+        <div class="admin-card__header">
+            <h3>💚 Donations</h3>
+            <span class="chip chip--info" th:text="${#lists.size(donations)} + ' total'">0</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Donor</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                    <tr th:each="d : ${donations}">
+                        <td class="cell-mono" th:text="'#' + ${d.id}">1</td>
+                        <td class="cell-primary" th:text="${d.donorEmail}">donor@email</td>
+                        <td th:text="${d.amount + ' ' + d.currency}">0 USD</td>
+                        <td><span class="chip" th:data-status="${d.status}" th:text="${d.status}">PENDING</span></td>
+                        <td>
+                            <form th:action="@{|/admin/donations/${d.id}/refund|}" method="post" style="display:flex; gap:0.35rem; align-items:center;">
+                                <input class="form-input" name="disputeReason" placeholder="Refund reason" required style="padding:0.4rem;" />
+                                <button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Process refund for this donation?')">Refund</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(donations)}"><td colspan="5" style="text-align:center; color:var(--color-gray-500); padding:2rem;">No donations</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

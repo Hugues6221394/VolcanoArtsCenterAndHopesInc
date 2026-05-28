@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Reviews</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">></span><span>Reviews</span></th:block>
+<th:block layout:fragment="styles">
+    <style>
+        .reviews-board {
+            display: grid;
+            gap: 1.25rem;
+        }
+        .reviews-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .reviews-summary-card {
+            padding: 1.2rem 1.3rem;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+        }
+        .reviews-summary-card__label {
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-size: .8rem;
+            margin-bottom: .5rem;
+        }
+        .reviews-summary-card__value {
+            font-size: 2.1rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .reviews-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .review-card {
+            padding: 1.25rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.02);
+            display: grid;
+            gap: 1rem;
+        }
+        .review-card__header,
+        .review-card__meta,
+        .review-card__actions {
+            display: flex;
+            gap: .75rem;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .review-card__subject {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 .25rem;
+        }
+        .review-card__subline {
+            margin: 0;
+            color: var(--color-gray-500);
+        }
+        .review-card__comment {
+            margin: 0;
+            padding: 1rem 1.05rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,.03);
+            color: var(--color-gray-200);
+            line-height: 1.65;
+        }
+        .review-card__actions form {
+            margin: 0;
+        }
+        .review-card__actions-group {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap;
+        }
+    </style>
+</th:block>
+<main layout:fragment="content">
+    <div class="reviews-board">
+        <div class="admin-page-header">
+            <div class="admin-page-header__info">
+                <h1>Reviews</h1>
+                <p>Moderate artwork and experience feedback, keep only verified submissions visible, and feature the strongest approved stories on the storefront.</p>
+            </div>
+        </div>
+
+        <section class="reviews-summary">
+            <article class="reviews-summary-card">
+                <div class="reviews-summary-card__label">Total Loaded</div>
+                <div class="reviews-summary-card__value" th:text="${#lists.size(items)}">0</div>
+            </article>
+            <article class="reviews-summary-card">
+                <div class="reviews-summary-card__label">Pending Moderation</div>
+                <div class="reviews-summary-card__value" th:text="${pendingCount}">0</div>
+            </article>
+            <article class="reviews-summary-card">
+                <div class="reviews-summary-card__label">Approved</div>
+                <div class="reviews-summary-card__value" th:text="${approvedCount}">0</div>
+            </article>
+            <article class="reviews-summary-card">
+                <div class="reviews-summary-card__label">Featured</div>
+                <div class="reviews-summary-card__value" th:text="${featuredCount}">0</div>
+            </article>
+        </section>
+
+        <div class="admin-card">
+            <div class="admin-card__header">
+                <h3>Moderation Queue</h3>
+                <span class="chip chip--info" th:text="${#lists.size(items)} + ' reviews'">0 reviews</span>
+            </div>
+            <div class="admin-card__body">
+                <div th:if="${#lists.isEmpty(items)}" class="admin-empty">
+                    <div class="admin-empty__icon">*</div>
+                    <div class="admin-empty__text">No reviews to moderate</div>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(items)}" class="reviews-list">
+                    <article th:each="r : ${items}" class="review-card">
+                        <div class="review-card__header">
+                            <div>
+                                <div class="review-card__subject" th:text="${r.product != null ? r.product.name : (r.experience != null ? r.experience.title : 'Unknown review target')}">Subject</div>
+                                <p class="review-card__subline">
+                                    <span th:text="${r.product != null ? 'Artwork review' : 'Experience review'}">Artwork review</span>
+                                    <span th:if="${r.createdAt != null}" th:text="' · submitted ' + ${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}">submitted 2026-04-30 12:00</span>
+                                </p>
+                            </div>
+                            <div style="display:flex; gap:.5rem; flex-wrap:wrap; justify-content:flex-end;">
+                                <span class="chip chip--info" th:text="${r.rating} + ' / 5'">5 / 5</span>
+                                <span class="chip" th:data-status="${r.approved ? 'APPROVED' : 'PENDING'}" th:text="${r.approved ? 'Approved' : 'Pending'}">Pending</span>
+                                <span th:if="${r.featured}" class="chip chip--warning">Featured</span>
+                            </div>
+                        </div>
+
+                        <div class="review-card__meta">
+                            <div>
+                                <strong th:text="${r.reviewerName}">Reviewer</strong>
+                                <p class="review-card__subline" th:text="${r.reviewerEmail != null ? r.reviewerEmail : 'No email stored'}">reviewer@example.com</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <strong th:text="${r.reviewerCountry != null ? r.reviewerCountry : 'Country not provided'}">Country</strong>
+                                <p class="review-card__subline" th:text="${r.approvedAt != null ? 'Approved ' + #temporals.format(r.approvedAt, 'yyyy-MM-dd HH:mm') : 'Not approved yet'}">Not approved yet</p>
+                            </div>
+                        </div>
+
+                        <p class="review-card__comment" th:text="${r.comment}">Comment</p>
+
+                        <div class="review-card__actions">
+                            <div class="review-card__actions-group">
+                                <form th:if="${!r.approved}" th:action="@{|/admin/content/reviews/${r.id}/moderate|}" method="post">
+                                    <input type="hidden" name="approved" value="true" />
+                                    <input type="hidden" name="featured" th:value="${r.featured}" />
+                                    <button class="btn btn--primary btn--sm" type="submit">Approve</button>
+                                </form>
+                                <form th:if="${r.approved}" th:action="@{|/admin/content/reviews/${r.id}/moderate|}" method="post">
+                                    <input type="hidden" name="approved" value="false" />
+                                    <input type="hidden" name="featured" value="false" />
+                                    <button class="btn btn--outline btn--sm" type="submit">Move To Pending</button>
+                                </form>
+                                <form th:if="${r.approved and !r.featured}" th:action="@{|/admin/content/reviews/${r.id}/moderate|}" method="post">
+                                    <input type="hidden" name="approved" value="true" />
+                                    <input type="hidden" name="featured" value="true" />
+                                    <button class="btn btn--outline btn--sm" type="submit">Feature</button>
+                                </form>
+                                <form th:if="${r.featured}" th:action="@{|/admin/content/reviews/${r.id}/moderate|}" method="post">
+                                    <input type="hidden" name="approved" value="true" />
+                                    <input type="hidden" name="featured" value="false" />
+                                    <button class="btn btn--outline btn--sm" type="submit">Remove Feature</button>
+                                </form>
+                            </div>
+                            <form th:action="@{|/admin/content/reviews/${r.id}/delete|}" method="post">
+                                <button class="btn btn--ghost btn--sm" type="submit" onclick="return confirm('Delete this review permanently?')">Delete Review</button>
+                            </form>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

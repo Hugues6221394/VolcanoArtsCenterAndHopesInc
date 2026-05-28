@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title th:text="${product.name + ' | Volcano Arts Center'}">Product | Volcano Arts Center</title></head>
+<body>
+<main layout:fragment="content">
+
+    <section class="hero-golden hero-golden--compact hero-golden--art vac-cinematic-hero reveal">
+        <div class="hero-golden__bg vac-cinematic-hero__bg">
+            <img class="hero-slide active vac-cinematic-hero__img"
+                 th:src="${product.displayPrimaryImageUrl != null ? product.displayPrimaryImageUrl : '/uploads/arthomepage.jpeg'}"
+                 alt="Artwork background"
+                 onerror="this.onerror=null;this.src='/uploads/art-gallery-interior.jpeg';" />
+            <div class="hero-golden__veil vac-cinematic-hero__veil"></div>
+        </div>
+        <div class="hero-golden__content">
+            <nav class="vac-breadcrumb vac-breadcrumb--light" aria-label="Breadcrumb">
+                <a th:href="@{/}">Home</a>
+                <span>/</span>
+                <a th:href="@{/art-store}">Art Store</a>
+                <span>/</span>
+                <span th:text="${product.name}">Product</span>
+            </nav>
+            <p class="hero-golden__kicker" th:text="${product.category != null ? product.category.name : 'Original Rwandan Art'}">Category</p>
+            <h1 class="hero-golden__title hero-golden__title--compact" th:text="${product.name}">Product</h1>
+        </div>
+    </section>
+
+    <section class="vac-section vac-section--white vac-product-detail-page">
+        <div class="container vac-product-detail-grid">
+
+            <div class="vac-product-gallery">
+                <img th:src="${product.displayPrimaryImageUrl != null ? product.displayPrimaryImageUrl : '/uploads/arthomepage.jpeg'}"
+                     th:alt="${product.name}"
+                     loading="eager"
+                     onerror="this.onerror=null;this.src='/uploads/art-layered-sculpture.jpeg';" />
+                <div th:if="${!#lists.isEmpty(product.additionalImages)}" class="vac-product-gallery__thumbs">
+                    <button type="button" class="vac-product-gallery__thumb" th:each="imageUrl : ${product.additionalImages}">
+                        <img th:src="${imageUrl}" alt="Additional artwork image" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.remove();" />
+                    </button>
+                </div>
+            </div>
+
+            <div class="vac-product-panel">
+                <span class="vac-eyebrow" th:text="${product.inventoryType}">UNIQUE</span>
+                <h2 class="vac-heading-lg" th:text="${product.name}">Product Name</h2>
+
+                <p th:if="${product.shortDescription != null}" class="vac-lead" th:text="${product.shortDescription}">Short description</p>
+                <p class="vac-product-description" th:text="${product.description}">Description</p>
+
+                <div class="vac-product-specs">
+                    <div class="vac-product-specs__item">
+                        <span class="vac-product-specs__label">Price</span>
+                        <span class="vac-product-specs__value vac-product-specs__value--price">
+                            $<span th:text="${#numbers.formatDecimal(product.price,1,'COMMA',2,'POINT')}">0.00</span>
+                            <s th:if="${product.compareAtPrice != null}">
+                                $<span th:text="${#numbers.formatDecimal(product.compareAtPrice,1,'COMMA',2,'POINT')}">0.00</span>
+                            </s>
+                        </span>
+                    </div>
+                    <div class="vac-product-specs__item" th:if="${product.artistName != null}">
+                        <span class="vac-product-specs__label">Artist</span>
+                        <span class="vac-product-specs__value" th:text="${product.artistName}">Artist</span>
+                    </div>
+                    <div class="vac-product-specs__item" th:if="${product.medium != null}">
+                        <span class="vac-product-specs__label">Medium</span>
+                        <span class="vac-product-specs__value" th:text="${product.medium}">Medium</span>
+                    </div>
+                    <div class="vac-product-specs__item" th:if="${product.dimensions != null}">
+                        <span class="vac-product-specs__label">Dimensions</span>
+                        <span class="vac-product-specs__value" th:text="${product.dimensions}">Dimensions</span>
+                    </div>
+                    <div class="vac-product-specs__item" th:if="${product.weightKg != null}">
+                        <span class="vac-product-specs__label">Weight</span>
+                        <span class="vac-product-specs__value"><span th:text="${product.weightKg}">0</span> kg</span>
+                    </div>
+                    <div class="vac-product-specs__item">
+                        <span class="vac-product-specs__label">Shipping</span>
+                        <span class="vac-product-specs__value">
+                            <span th:text="${product.shippable ? 'Worldwide shipping available' : 'Pickup only'}">Shippable</span>
+                            <small th:if="${product.shippingNote != null}" th:text="${product.shippingNote}">Shipping note</small>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="vac-stock-banner"
+                     th:classappend="${isSold} ? ' vac-stock-banner--sold' : (${reservedByOther} ? ' vac-stock-banner--reserved' : (${reservedByMe} ? ' vac-stock-banner--held' : ''))">
+                    <div th:if="${isSold}"><strong>Sold</strong> — this piece has found its home.</div>
+                    <div th:unless="${isSold}">
+                        <div th:if="${isUnique and reservedByOther}">
+                            <strong>Reserved</strong> by another buyer.
+                            <span th:if="${reservationRemainingMinutes != null}" th:text="'Available again in ~' + ${reservationRemainingMinutes} + ' minute(s).'"></span>
+                        </div>
+                        <div th:if="${isUnique and reservedByMe}">
+                            <strong>On hold</strong> — you have this piece reserved.
+                            <span th:if="${reservationRemainingMinutes != null}" th:text="'Expires in ~' + ${reservationRemainingMinutes} + ' minute(s).'"></span>
+                        </div>
+                        <div th:if="${isUnique and !reservedByOther and !reservedByMe}"><strong>One of a kind</strong> — available to collect.</div>
+                        <div th:if="${!isUnique and product.stockQuantity != null}">
+                            <span th:if="${product.stockQuantity > 5}" th:text="${product.stockQuantity} + ' in stock'">In stock</span>
+                            <span th:if="${product.stockQuantity > 0 and product.stockQuantity <= 5}" class="vac-stock-banner--low" th:text="'Only ' + ${product.stockQuantity} + ' left'">Low stock</span>
+                            <span th:if="${product.stockQuantity == 0}"><strong>Out of stock</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${product.artistStory != null}" class="vac-artist-story">
+                    <h3>Artist Story</h3>
+                    <p th:text="${product.artistStory}">Artist story</p>
+                </div>
+
+                <div th:if="${successMessage}" class="vac-alert vac-alert--success" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="vac-alert vac-alert--danger" th:text="${errorMessage}"></div>
+
+                <div th:if="${!isAuthenticated}" class="vac-purchase-box vac-purchase-box--guest">
+                    <h3>Reserve / Order Online</h3>
+                    <p>Sign in to add this artwork to your cart and complete checkout. International shipping is coordinated by our team after order submission.</p>
+                    <a th:href="@{/login(redirect=${'/art-store/' + product.slug})}" class="btn btn--primary">Add to cart</a>
+                    <a th:href="@{/register}" class="btn btn--outline" style="margin-left:0.75rem;">Create account</a>
+                </div>
+
+                <form th:if="${isAuthenticated}" th:action="@{/cart/add}" method="post" class="vac-purchase-box">
+                    <h3>Reserve / Order Online</h3>
+                    <p>Add this artwork to your cart to check out. International shipping is coordinated by our team after order submission.</p>
+                    <div class="vac-purchase-box__row">
+                        <div class="form-group vac-purchase-box__qty">
+                            <label class="form-label" for="product-qty">Quantity</label>
+                            <input id="product-qty" name="quantity" type="number" min="1" value="1" class="form-input" th:disabled="${isSold or reservedByOther}" />
+                        </div>
+                        <input type="hidden" name="productId" th:value="${product.id}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button class="btn btn--primary" type="submit"
+                                th:disabled="${isSold or reservedByOther}"
+                                th:text="${isSold} ? 'Sold' : (${reservedByOther} ? 'Reserved' : (${reservedByMe} ? 'Already in your cart' : 'Add to Cart'))">Add to Cart</button>
+                    </div>
+                </form>
+
+                <div class="vac-product-actions">
+                    <a th:href="@{/cart}" class="btn btn--outline">View Cart</a>
+                    <form th:if="${isAuthenticated}" th:action="@{|/art-store/${product.slug}/inquire|}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button class="btn btn--outline" type="submit">Inquire About Art</button>
+                    </form>
+                    <a th:unless="${isAuthenticated}" th:href="@{/login(redirect=${'/art-store/' + product.slug})}" class="btn btn--outline">Inquire About Art</a>
+                    <form th:if="${isAuthenticated}" th:action="@{|/art-store/${product.slug}/save|}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button class="btn btn--outline" type="submit">Save Item</button>
+                    </form>
+                    <form th:if="${isAuthenticated}" th:action="@{|/art-store/${product.slug}/unsave|}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button class="btn btn--ghost" type="submit">Remove Saved</button>
+                    </form>
+                </div>
+
+                <details class="vac-ask-panel">
+                    <summary>
+                        <span>Ask the gallery a question</span>
+                        <small>Curators reply within 24 hours</small>
+                    </summary>
+                    <div class="vac-ask-panel__body">
+                        <p>Ask about provenance, framing, custom commissions, or shipping to your country.</p>
+                        <form th:action="@{|/art-store/${product.slug}/ask|}" method="post" class="vac-ask-form">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <div class="form-group">
+                                <label class="form-label" for="ask-name">Your name</label>
+                                <input id="ask-name" name="name" type="text" class="form-input" required th:value="${reviewerDisplayName}" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="ask-email">Email</label>
+                                <input id="ask-email" name="email" type="email" class="form-input" required th:value="${reviewerDisplayEmail}" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="ask-message">Your question</label>
+                                <textarea id="ask-message" name="message" rows="4" class="form-input" required placeholder="e.g. Do you ship framed to the UK?"></textarea>
+                            </div>
+                            <button class="btn btn--outline" type="submit">Send Question</button>
+                        </form>
+                    </div>
+                </details>
+
+                <div class="vac-reviews-block">
+                    <div class="vac-section-head">
+                        <div>
+                            <p class="vac-eyebrow">Buyer Feedback</p>
+                            <h3 class="vac-heading-md">Approved Reviews</h3>
+                        </div>
+                        <span class="vac-badge" th:text="${#lists.size(reviews)} + ' visible'">0 visible</span>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(reviews)}" class="vac-empty-panel vac-empty-panel--compact">
+                        <p>No approved reviews are visible for this artwork yet.</p>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(reviews)}" class="vac-review-list">
+                        <article th:each="review : ${reviews}" class="vac-review-card">
+                            <div class="vac-review-card__head">
+                                <div>
+                                    <h4 th:text="${review.reviewerName}">Reviewer</h4>
+                                    <p th:text="${review.reviewerCountry != null ? review.reviewerCountry : 'Verified buyer'}">Verified buyer</p>
+                                </div>
+                                <div class="vac-review-card__meta">
+                                    <span class="vac-exp-stars" th:text="${review.rating} + ' / 5'">5 / 5</span>
+                                    <time th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">Date</time>
+                                </div>
+                            </div>
+                            <p th:text="${review.comment}">Review comment</p>
+                        </article>
+                    </div>
+
+                    <div class="vac-review-form-block">
+                        <h4>Leave a Verified Review</h4>
+                        <div th:if="${isAuthenticated and canSubmitReview}" class="vac-alert vac-alert--success">
+                            <strong th:text="${reviewerDisplayName}">Reviewer</strong>
+                            <span th:if="${reviewerDisplayEmail != null}" th:text="' · ' + ${reviewerDisplayEmail}"></span>
+                            <div th:text="${reviewStatusMessage}">Your account is eligible.</div>
+                        </div>
+                        <div th:if="${isAuthenticated and !canSubmitReview}" class="vac-alert vac-alert--warning" th:text="${reviewStatusMessage}">
+                            Review access unlocks after delivery.
+                        </div>
+
+                        <form th:if="${isAuthenticated and canSubmitReview}" th:action="@{|/art-store/${product.slug}/reviews|}" method="post" class="vac-review-form">
+                            <div class="form-group">
+                                <label class="form-label" for="review-rating">Rating</label>
+                                <select id="review-rating" name="rating" class="form-select" required>
+                                    <option value="">Choose a rating</option>
+                                    <option value="5">5 / 5</option>
+                                    <option value="4">4 / 5</option>
+                                    <option value="3">3 / 5</option>
+                                    <option value="2">2 / 5</option>
+                                    <option value="1">1 / 5</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="review-comment">Comment</label>
+                                <textarea id="review-comment" name="comment" rows="4" class="form-input" required placeholder="Share what arrived well…"></textarea>
+                            </div>
+                            <button class="btn btn--outline" type="submit">Submit Verified Review</button>
+                        </form>
+                        <p th:if="${!isAuthenticated}" class="vac-muted-note">Sign in as a registered client to submit verified reviews for delivered orders.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/admin-base}">
+<head><title>Testimonials</title></head>
+<body>
+<th:block layout:fragment="breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><span class="sep">›</span><span>Testimonials</span></th:block>
+<main layout:fragment="content">
+    <div class="admin-page-header">
+        <div class="admin-page-header__info"><h1>Testimonials</h1><p>Manage visitor testimonials displayed on the public site.</p></div>
+        <div class="admin-page-header__actions"><button class="btn btn--primary btn--sm" onclick="document.getElementById('create-test').style.display=document.getElementById('create-test').style.display==='none'?'block':'none'">+ Add Testimonial</button></div>
+    </div>
+    <div class="admin-card" id="create-test" style="display:none;margin-bottom:1.5rem;">
+        <div class="admin-card__header"><h3>Create Testimonial</h3></div>
+        <div class="admin-card__body">
+            <form th:action="@{/admin/content/testimonials}" method="post" class="modal-form">
+                <div class="form-row"><div class="form-group"><label class="form-label">Author Name</label><input class="form-input" name="authorName" required /></div><div class="form-group"><label class="form-label">Country</label><input class="form-input" name="authorCountry" /></div></div>
+                <div class="form-row"><div class="form-group"><label class="form-label">Title/Role</label><input class="form-input" name="authorTitle" /></div><div class="form-group"><label class="form-label">Rating (1-5)</label><input class="form-input" type="number" name="rating" min="1" max="5" value="5" /></div></div>
+                <div class="form-row--full"><div class="form-group"><label class="form-label">Message</label><textarea class="form-input" name="message" rows="3" required></textarea></div></div>
+                <div style="display:flex;gap:1rem;"><label><input type="checkbox" name="published" /> Published</label><label><input type="checkbox" name="featured" /> Featured</label></div>
+                <div class="form-actions"><button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('create-test').style.display='none'">Cancel</button><button type="submit" class="btn btn--primary btn--sm">Create</button></div>
+            </form>
+        </div>
+    </div>
+    <div class="admin-card">
+        <div class="admin-card__header"><h3>All Testimonials</h3><span class="chip chip--info" th:text="${#lists.size(items)} + ' total'">0</span></div>
+        <div class="admin-card__body--flush"><div class="admin-table-wrap">
+            <table class="admin-table"><thead><tr><th>Author</th><th>Country</th><th>Rating</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            <tr th:each="t : ${items}">
+                <td><div class="cell-primary" th:text="${t.authorName}">Name</div><div style="font-size:.72rem;color:var(--color-gray-500);" th:text="${t.authorTitle}">Title</div></td>
+                <td th:text="${t.authorCountry ?: '-'}">-</td>
+                <td><span th:text="${'★'.repeat(t.rating)}">★★★★★</span></td>
+                <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" th:text="${t.message}">Message</td>
+                <td><span class="chip" th:data-status="${t.published ? 'PUBLISHED' : 'DRAFT'}" th:text="${t.published ? 'Published' : 'Draft'}">Draft</span><span th:if="${t.featured}" class="chip chip--warning" style="margin-left:.25rem;">Featured</span></td>
+                <td><div style="display:flex;gap:.35rem;"><button class="btn btn--outline btn--xs" th:onclick="'document.getElementById(\'edit-test-'+${t.id}+'\').style.display=document.getElementById(\'edit-test-'+${t.id}+'\').style.display===\'none\'?\'table-row\':\'none\''">Edit</button><form th:action="@{|/admin/content/testimonials/${t.id}/delete|}" method="post" style="display:inline;"><button class="btn btn--ghost btn--xs" type="submit" onclick="return confirm('Delete?')">Delete</button></form></div></td>
+            </tr>
+            <tr th:each="t : ${items}" th:id="'edit-test-'+${t.id}" style="display:none;background:rgba(0,162,89,.03);">
+                <td colspan="6"><form th:action="@{|/admin/content/testimonials/${t.id}/update|}" method="post" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;padding:.5rem 0;">
+                    <div class="form-group" style="margin:0;flex:1;min-width:120px;"><label class="form-label">Name</label><input class="form-input" name="authorName" th:value="${t.authorName}" required /></div>
+                    <div class="form-group" style="margin:0;min-width:100px;"><label class="form-label">Country</label><input class="form-input" name="authorCountry" th:value="${t.authorCountry}" /></div>
+                    <div class="form-group" style="margin:0;min-width:100px;"><label class="form-label">Title</label><input class="form-input" name="authorTitle" th:value="${t.authorTitle}" /></div>
+                    <div class="form-group" style="margin:0;min-width:60px;"><label class="form-label">Rating</label><input class="form-input" type="number" name="rating" th:value="${t.rating}" min="1" max="5" /></div>
+                    <div class="form-group" style="margin:0;flex:2;min-width:200px;"><label class="form-label">Message</label><input class="form-input" name="message" th:value="${t.message}" required /></div>
+                    <label style="font-size:.8rem;"><input type="checkbox" name="published" th:checked="${t.published}" /> pub</label>
+                    <label style="font-size:.8rem;"><input type="checkbox" name="featured" th:checked="${t.featured}" /> feat</label>
+                    <button class="btn btn--primary btn--xs" type="submit">Save</button>
+                </form></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(items)}"><td colspan="6" class="admin-empty"><div class="admin-empty__icon">💬</div><div class="admin-empty__text">No testimonials yet</div></td></tr>
+            </tbody></table>
+        </div></div>
+    </div>
+</main>
+</body>
+</html>

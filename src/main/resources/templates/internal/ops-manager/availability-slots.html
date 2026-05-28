@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Availability Slots</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/dashboard}">Admin</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Availability</span>
+</th:block>
+
+<th:block layout:fragment="styles">
+    <style>
+        .availability-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .availability-summary-card {
+            padding: 1.1rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(16, 21, 19, 0.98), rgba(9, 14, 12, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .availability-summary-card__label {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .availability-summary-card__value {
+            margin-top: 0.45rem;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .availability-summary-card__meta {
+            margin-top: 0.55rem;
+            color: var(--color-gray-400);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .availability-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .availability-panel {
+            display: none;
+            margin-bottom: 0;
+        }
+
+        .availability-panel .admin-card__body {
+            padding: 1.15rem;
+        }
+
+        .availability-panel__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .availability-panel__header h3 {
+            margin-bottom: 0.2rem;
+        }
+
+        .availability-panel__header p {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .availability-form-grid,
+        .availability-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .availability-field {
+            grid-column: span 4;
+        }
+
+        .availability-field--wide {
+            grid-column: span 12;
+        }
+
+        .availability-field--half {
+            grid-column: span 6;
+        }
+
+        .availability-form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.9rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 0.95rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .availability-form-note {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+            line-height: 1.45;
+            max-width: 34rem;
+        }
+
+        .availability-form-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-left: auto;
+        }
+
+        .availability-form-buttons .btn {
+            min-height: 2.85rem;
+            padding: 0.72rem 1.15rem;
+            border-radius: 0.85rem;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .availability-form-buttons .btn--primary {
+            box-shadow: 0 10px 24px rgba(0, 162, 89, 0.2);
+        }
+
+        .availability-filter-card {
+            margin-bottom: 1rem;
+        }
+
+        .availability-filter-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .availability-filter-header p {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
+
+        .availability-filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .availability-table-title {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .availability-table-title .cell-primary {
+            font-size: 0.98rem;
+        }
+
+        .availability-table-meta {
+            color: var(--color-gray-500);
+            font-size: 0.76rem;
+            line-height: 1.4;
+        }
+
+        .availability-status-stack {
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .availability-status-note {
+            color: var(--color-gray-500);
+            font-size: 0.74rem;
+            line-height: 1.4;
+        }
+
+        .availability-action-stack {
+            display: grid;
+            gap: 0.55rem;
+            min-width: 320px;
+        }
+
+        .availability-action-card {
+            padding: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .availability-action-card__label {
+            display: block;
+            margin-bottom: 0.45rem;
+            color: var(--color-gray-500);
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .availability-action-row {
+            display: grid;
+            grid-template-columns: minmax(130px, 1.2fr) minmax(70px, 0.55fr) auto;
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        .availability-action-row--guide {
+            grid-template-columns: minmax(200px, 1fr) auto;
+        }
+
+        .availability-action-row .form-select,
+        .availability-action-row .form-input {
+            padding: 0.58rem 0.7rem;
+            min-height: 2.65rem;
+        }
+
+        .availability-action-row .btn {
+            min-height: 2.65rem;
+            padding: 0.6rem 0.85rem;
+            font-weight: 700;
+        }
+
+        .availability-blackout-reason {
+            color: var(--color-gray-300);
+        }
+
+        .availability-empty-note {
+            color: var(--color-gray-500);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1100px) {
+            .availability-summary-grid,
+            .availability-panel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .availability-field,
+            .availability-field--half {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .availability-action-stack {
+                min-width: 0;
+            }
+
+            .availability-action-row,
+            .availability-action-row--guide {
+                grid-template-columns: 1fr;
+            }
+
+            .availability-form-actions {
+                align-items: stretch;
+            }
+
+            .availability-form-buttons {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</th:block>
+
+<main layout:fragment="content">
+    <div class="admin-page-header">
+        <div class="admin-page-header__info">
+            <h1>Availability Slots</h1>
+            <p>Coordinate operational availability with clear slot capacity, blackout controls, and guide assignment in one workspace.</p>
+        </div>
+        <div class="admin-page-header__actions">
+            <button class="btn btn--primary" type="button" onclick="document.getElementById('gen-section').style.display=document.getElementById('gen-section').style.display==='none'?'block':'none'">Generate Slots</button>
+            <button class="btn btn--outline" type="button" onclick="document.getElementById('blackout-section').style.display=document.getElementById('blackout-section').style.display==='none'?'block':'none'">Add Blackout</button>
+        </div>
+    </div>
+
+    <div class="availability-summary-grid">
+        <article class="availability-summary-card">
+            <div class="availability-summary-card__label">Visible Slots</div>
+            <div class="availability-summary-card__value" th:text="${#lists.size(items)}">0</div>
+            <div class="availability-summary-card__meta">Slots in the current filter window and experience scope.</div>
+        </article>
+        <article class="availability-summary-card">
+            <div class="availability-summary-card__label">Blackout Dates</div>
+            <div class="availability-summary-card__value" th:text="${#lists.size(blackouts)}">0</div>
+            <div class="availability-summary-card__meta">Scheduled closures or private-hire blocks affecting this view.</div>
+        </article>
+        <article class="availability-summary-card">
+            <div class="availability-summary-card__label">Guide Coverage</div>
+            <div class="availability-summary-card__value" th:text="${guidedSlotsCount}">0</div>
+            <div class="availability-summary-card__meta">
+                <span th:text="${selectedExperienceLabel}">All experiences</span>
+                <span th:text="| • ${blockedSlotsCount} blocked or request-only slots|"> • 0 blocked or request-only slots</span>
+            </div>
+        </article>
+    </div>
+
+    <div class="availability-panel-grid">
+        <div class="admin-card availability-panel" id="gen-section">
+            <div class="admin-card__body">
+                <form th:action="@{/admin/ops/availability-slots/generate}" method="post">
+                    <div class="availability-panel__header">
+                        <div>
+                            <h3>Generate Availability</h3>
+                            <p>Create or refresh operational slots across a date window for one experience.</p>
+                        </div>
+                        <span class="chip chip--info">Bulk Setup</span>
+                    </div>
+
+                    <div class="availability-form-grid">
+                        <div class="form-group availability-field--half">
+                            <label class="form-label">Experience</label>
+                            <select class="form-select" name="experienceId" required>
+                                <option th:each="e : ${experiences}" th:value="${e.id}" th:text="${e.title}">Experience</option>
+                            </select>
+                        </div>
+                        <div class="form-group availability-field">
+                            <label class="form-label">From Date</label>
+                            <input class="form-input" type="date" name="fromDate" required />
+                        </div>
+                        <div class="form-group availability-field">
+                            <label class="form-label">To Date</label>
+                            <input class="form-input" type="date" name="toDate" required />
+                        </div>
+                        <div class="form-group availability-field">
+                            <label class="form-label">Capacity</label>
+                            <input class="form-input" type="number" name="capacity" value="15" min="1" />
+                        </div>
+                    </div>
+
+                    <div class="availability-form-actions">
+                        <span class="availability-form-note">Use this when opening a new date range or resetting empty slots before bookings start coming in.</span>
+                        <div class="availability-form-buttons">
+                            <button class="btn btn--outline" type="button" onclick="document.getElementById('gen-section').style.display='none'">Close</button>
+                            <button class="btn btn--primary" type="submit">Generate Availability</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card availability-panel" id="blackout-section">
+            <div class="admin-card__body">
+                <form th:action="@{/admin/ops/availability-slots/blackout}" method="post">
+                    <div class="availability-panel__header">
+                        <div>
+                            <h3>Add Blackout Date</h3>
+                            <p>Block a date for private hire, maintenance, staff absence, or any operational closure.</p>
+                        </div>
+                        <span class="chip chip--warning">Blockout</span>
+                    </div>
+
+                    <div class="availability-form-grid">
+                        <div class="form-group availability-field--half">
+                            <label class="form-label">Experience</label>
+                            <select class="form-select" name="experienceId" required>
+                                <option th:each="e : ${experiences}" th:value="${e.id}" th:text="${e.title}">Experience</option>
+                            </select>
+                        </div>
+                        <div class="form-group availability-field">
+                            <label class="form-label">Date</label>
+                            <input class="form-input" type="date" name="date" required />
+                        </div>
+                        <div class="form-group availability-field">
+                            <label class="form-label">Reason</label>
+                            <input class="form-input" name="reason" placeholder="Private hire, staff training, maintenance..." />
+                        </div>
+                    </div>
+
+                    <div class="availability-form-actions">
+                        <span class="availability-form-note">Blackout dates set capacity to zero and keep the affected slot visibly blocked in operations.</span>
+                        <div class="availability-form-buttons">
+                            <button class="btn btn--outline" type="button" onclick="document.getElementById('blackout-section').style.display='none'">Close</button>
+                            <button class="btn btn--primary" type="submit">Add Blackout</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(blackouts)}" class="admin-card" style="margin-bottom:1rem;">
+        <div class="admin-card__header">
+            <h3>Active Blackout Dates</h3>
+            <span class="chip chip--warning" th:text="${#lists.size(blackouts)} + ' active'">0 active</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Experience</th>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="bd : ${blackouts}">
+                        <td class="cell-primary" th:text="${blackoutExperienceTitles[bd.id]}">Experience</td>
+                        <td th:text="${#temporals.format(bd.dateValue, 'yyyy-MM-dd')}">2026-01-01</td>
+                        <td class="availability-blackout-reason" th:text="${#strings.isEmpty(bd.reason) ? '-' : bd.reason}">-</td>
+                        <td>
+                            <form th:action="@{|/admin/ops/availability-slots/blackout/${bd.id}/delete|}" method="post">
+                                <button class="btn btn--ghost btn--sm" type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card availability-filter-card">
+        <div class="admin-card__body">
+            <div class="availability-filter-header">
+                <div>
+                    <h3>Filter Window</h3>
+                    <p>Narrow the board by date range or by a single experience when reviewing schedule pressure and blackout conflicts.</p>
+                </div>
+                <span class="chip chip--info" th:text="${selectedExperienceLabel}">All experiences</span>
+            </div>
+
+            <form method="get" th:action="@{/admin/ops/availability-slots}">
+                <div class="availability-filter-grid">
+                    <div class="form-group availability-field">
+                        <label class="form-label">From Date</label>
+                        <input class="form-input" type="date" name="fromDate" th:value="${fromDate}" />
+                    </div>
+                    <div class="form-group availability-field">
+                        <label class="form-label">To Date</label>
+                        <input class="form-input" type="date" name="toDate" th:value="${toDate}" />
+                    </div>
+                    <div class="form-group availability-field--half">
+                        <label class="form-label">Experience</label>
+                        <select class="form-select" name="experienceId">
+                            <option value="">All experiences</option>
+                            <option th:each="e : ${experiences}" th:value="${e.id}" th:text="${e.title}" th:selected="${experienceId != null && experienceId == e.id}">Experience</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="availability-filter-actions">
+                    <button class="btn btn--outline" type="submit">Apply Filter</button>
+                    <a class="btn btn--ghost" th:href="@{/admin/ops/availability-slots}">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card__header">
+            <h3>Availability Slots</h3>
+            <span class="chip chip--info" th:text="${#lists.size(items)} + ' slots'">0 slots</span>
+        </div>
+        <div class="admin-card__body--flush">
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Experience</th>
+                        <th>Date</th>
+                        <th>Capacity</th>
+                        <th>Booked</th>
+                        <th>Guide</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${items}">
+                        <td>
+                            <div class="availability-table-title">
+                                <div class="cell-primary" th:text="${slotExperienceTitles[s.id]}">Experience</div>
+                                <div class="availability-table-meta" th:text="|${#lists.size(slotBookingsById[s.id])} booking records linked to this date|">0 booking records linked to this date</div>
+                            </div>
+                        </td>
+                        <td th:text="${#temporals.format(s.slotDate, 'yyyy-MM-dd')}">2026-01-01</td>
+                        <td th:text="${s.maxCapacity}">15</td>
+                        <td th:text="${s.bookedCount}">0</td>
+                        <td th:text="${#strings.isEmpty(s.assignedGuideName) ? 'Unassigned' : s.assignedGuideName}">Unassigned</td>
+                        <td>
+                            <div class="availability-status-stack">
+                                <span class="chip" th:data-status="${s.status}" th:text="${s.status}">AVAILABLE</span>
+                                <span class="availability-status-note" th:text="${s.maxCapacity == 0 ? 'Capacity blocked by blackout or manual closure' : (#lists.size(slotBookingsById[s.id]) == 0 ? 'No active bookings yet' : #lists.size(slotBookingsById[s.id]) + ' active booking record(s)')}">Status note</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="availability-action-stack">
+                                <form th:action="@{|/admin/ops/availability-slots/${s.id}/update|}" method="post" class="availability-action-card">
+                                    <span class="availability-action-card__label">Slot Update</span>
+                                    <div class="availability-action-row">
+                                        <select class="form-select" name="status">
+                                            <option th:each="st : ${slotStatuses}" th:value="${st}" th:text="${st}" th:selected="${st == s.status}">Status</option>
+                                        </select>
+                                        <input class="form-input" type="number" name="maxCapacity" th:value="${s.maxCapacity}" min="0" />
+                                        <button class="btn btn--outline btn--sm" type="submit">Apply</button>
+                                    </div>
+                                </form>
+                                <form th:action="@{|/admin/ops/availability-slots/${s.id}/assign-guide|}" method="post" class="availability-action-card">
+                                    <span class="availability-action-card__label">Guide Assignment</span>
+                                    <div class="availability-action-row availability-action-row--guide">
+                                        <select class="form-select" name="guideEmail">
+                                            <option value="">Unassign</option>
+                                            <option th:each="g : ${guides}" th:value="${g.email}" th:text="${g.fullName}" th:selected="${g.email == s.assignedGuideEmail}">Guide</option>
+                                        </select>
+                                        <button class="btn btn--outline btn--sm" type="submit">Save Guide</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(items)}">
+                        <td colspan="7" class="admin-empty">
+                            <div class="admin-empty__icon">Slots</div>
+                            <div class="admin-empty__text">No availability slots yet</div>
+                            <div class="availability-empty-note">Generate a date range above to open the operational calendar.</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

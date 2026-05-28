@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title th:text="${conversation.subject}">Conversation</title></head>
+<body>
+<main layout:fragment="content" class="vac-message-page vac-thread-page">
+    <section class="vac-message-hero vac-message-hero--compact">
+        <img src="/uploads/arts page 3.jpg" alt="Conversation backdrop" loading="eager"
+             onerror="this.onerror=null;this.src='/uploads/arts page 4.jpg';" />
+        <div class="vac-message-hero__shade"></div>
+        <div class="container vac-message-hero__content">
+            <p><a th:href="@{/account/messages}">Messages</a> / Thread</p>
+            <h1 th:text="${conversation.subject}">Subject</h1>
+            <span th:if="${product != null}">About <a th:href="@{|/art-store/${product.slug}|}" th:text="${product.name}">Artwork</a></span>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="vac-thread-shell">
+                <div th:if="${errorMessage}" class="vac-form-alert is-error" th:text="${errorMessage}"></div>
+
+                <div class="vac-thread-card">
+                    <div class="vac-thread-card__head">
+                        <div>
+                            <p>Status</p>
+                            <h2 th:text="${conversation.status}">STATUS</h2>
+                        </div>
+                        <a th:href="@{/account/messages}" class="btn btn--outline btn--sm">Back to inbox</a>
+                    </div>
+
+                    <div class="vac-chat-stream">
+                        <article th:each="m : ${messages}" class="vac-chat-bubble"
+                                 th:classappend="${m.senderRole.name() == 'CLIENT'} ? ' is-me' : ' is-staff'">
+                            <div class="vac-chat-bubble__meta">
+                                <strong th:text="${m.senderRole.name() == 'CLIENT' ? 'You' : (senderNames[m.senderUserId] != null ? senderNames[m.senderUserId] : 'Volcano Arts Center')}">Sender</strong>
+                                <time th:text="${#temporals.format(m.createdAt, 'd MMM yyyy, HH:mm')}">date</time>
+                            </div>
+                            <p th:text="${m.body}">Body</p>
+                        </article>
+                    </div>
+
+                    <form th:if="${conversation.status.name() != 'RESOLVED'}"
+                          th:action="@{|/account/messages/${conversation.id}/reply|}" method="post"
+                          class="vac-reply-card">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <label>Your reply</label>
+                        <textarea name="body" required rows="5" maxlength="4000" placeholder="Type your reply..."></textarea>
+                        <button type="submit" class="btn btn--primary">Send reply</button>
+                    </form>
+
+                    <div th:if="${conversation.status.name() == 'RESOLVED'}" class="vac-empty-panel">
+                        <h3>Conversation resolved</h3>
+                        <p>This thread has been closed. Start a new product or booking question whenever you need support.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

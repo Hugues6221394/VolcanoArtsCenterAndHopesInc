@@ -1,0 +1,17 @@
+target/
+.git/
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+.mvn/wrapper/maven-wrapper.jar.lck
+HELP.md
+README.md
+DEPLOYMENT.md
+docs/
+perf/

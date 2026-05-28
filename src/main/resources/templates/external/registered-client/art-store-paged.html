@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/base}">
+<head><title>Art Store</title></head>
+<body>
+<main layout:fragment="content">
+    <section class="vac-section vac-section--white" id="collection">
+        <div class="container">
+            <div class="vac-market-head">
+                <div>
+                    <p class="vac-eyebrow">Original Artworks</p>
+                    <h1 class="vac-market-title">Collect from Rwanda.</h1>
+                </div>
+                <p class="vac-lead" style="max-width:520px;">
+                    Explore a growing catalog designed to scale to thousands of artworks — search, filter, and browse with ease.
+                    <span th:if="${productsPage != null}" th:text="' · ' + ${productsPage.totalElements} + ' pieces'"></span>
+                </p>
+            </div>
+
+            <div class="vac-market-layout">
+                <aside class="vac-filter-panel">
+                    <form method="get" th:action="@{/art-store/paged}" style="display:grid; gap:1.1rem;">
+                        <div>
+                            <label class="form-label" for="art-search-paged">Search the collection</label>
+                            <input id="art-search-paged" class="form-input" name="q" th:value="${q}" placeholder="Name, artist, story..." />
+                        </div>
+
+                        <div>
+                            <span class="form-label">Price range (USD)</span>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-top:.7rem;">
+                                <input class="form-input" type="number" step="0.01" min="0" name="minPrice" th:value="${minPrice}" placeholder="Min" />
+                                <input class="form-input" type="number" step="0.01" min="0" name="maxPrice" th:value="${maxPrice}" placeholder="Max" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="form-label">Categories</span>
+                            <div class="vac-filter-list" style="margin-top:.7rem;">
+                                <a th:href="@{/art-store/paged(q=${q},minPrice=${minPrice},maxPrice=${maxPrice})}"
+                                   class="vac-filter-chip"
+                                   th:classappend="${selectedCategory == null ? 'art-cat-active' : ''}">All categories</a>
+                                <a th:each="cat : ${categories}"
+                                   th:href="@{/art-store/paged(category=${cat.slug},q=${q},minPrice=${minPrice},maxPrice=${maxPrice})}"
+                                   th:text="${cat.name}"
+                                   class="vac-filter-chip"
+                                   th:classappend="${selectedCategory != null and selectedCategory == cat.slug ? 'art-cat-active' : ''}">
+                                    Category
+                                </a>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn--primary">Apply Filters</button>
+                        <a th:href="@{/art-store/paged}" class="btn btn--outline">Reset</a>
+                    </form>
+                </aside>
+
+                <div>
+                    <div th:if="${productsPage == null or #lists.isEmpty(productsPage.content)}" class="vac-empty-panel">
+                        <h3>No artworks match your filters.</h3>
+                        <p>Try a different category, broaden your search, or reset filters to view the full catalog.</p>
+                        <a th:href="@{/art-store/paged}" class="btn btn--primary">Show all artworks</a>
+                    </div>
+
+                    <div th:if="${productsPage != null and !#lists.isEmpty(productsPage.content)}" class="vac-premium-art-grid">
+                        <article class="vac-premium-art-card vac-clickable-card"
+                                 th:each="p,iter : ${productsPage.content}"
+                                 th:attr="data-card-url=@{|/art-store/${p.slug}|}"
+                                 th:with="productFallback=${iter.index % 6 == 0 ? '/uploads/arts page.jpg' : iter.index % 6 == 1 ? '/uploads/Arts Page 2.jpg' : iter.index % 6 == 2 ? '/uploads/arts page 3.jpg' : iter.index % 6 == 3 ? '/uploads/arts page 4.jpg' : iter.index % 6 == 4 ? '/uploads/arts.png' : '/uploads/arts page .jpg'},productImage=${p.displayPrimaryImageUrl != null ? p.displayPrimaryImageUrl : productFallback}">
+                            <a th:href="@{|/art-store/${p.slug}|}" class="vac-premium-art-card__image">
+                                <img th:src="${productImage}" th:alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='/uploads/arts.png';" />
+                            </a>
+                            <div class="vac-premium-art-card__body">
+                                <p th:text="${p.category != null ? p.category.name : 'Original Rwandan Art'}">Original Rwandan Art</p>
+                                <h3><a th:href="@{|/art-store/${p.slug}|}" th:text="${p.name}">Artwork</a></h3>
+                                <small th:if="${p.artistName != null and !#strings.isEmpty(p.artistName)}" th:text="${'by ' + p.artistName}">by Artist</small>
+                                <div class="vac-premium-art-card__foot">
+                                    <strong th:text="${p.price != null ? '$' + #numbers.formatDecimal(p.price, 1, 2) : '$0.00'}">$0.00</strong>
+                                    <a class="btn btn--outline btn--sm" th:href="@{|/art-store/${p.slug}|}">View</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <nav class="vac-pagination" th:if="${productsPage != null and (productsPage.hasPrevious() or productsPage.hasNext())}" aria-label="Catalog pagination">
+                        <a class="btn btn--outline btn--sm"
+                           th:if="${productsPage.hasPrevious()}"
+                           th:href="@{/art-store/paged(category=${selectedCategory},q=${q},minPrice=${minPrice},maxPrice=${maxPrice},page=${productsPage.number - 1},size=${productsPage.size})}">Prev</a>
+                        <span class="btn btn--outline btn--sm" style="pointer-events:none; opacity:.8;"
+                              th:if="${productsPage != null}"
+                              th:text="${'Page ' + (productsPage.number + 1) + ' of ' + productsPage.totalPages}">Page</span>
+                        <a class="btn btn--outline btn--sm"
+                           th:if="${productsPage.hasNext()}"
+                           th:href="@{/art-store/paged(category=${selectedCategory},q=${q},minPrice=${minPrice},maxPrice=${maxPrice},page=${productsPage.number + 1},size=${productsPage.size})}">Next</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

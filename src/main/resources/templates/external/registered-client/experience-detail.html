@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head><title>Experience | Volcano Arts Center</title></head>
+<body>
+<main layout:fragment="content">
+    
+    <!-- Hero -->
+    <section class="hero-golden hero-golden--compact hero-golden--experiences vac-cinematic-hero reveal" style="height: 48vh; min-height: 360px;">
+        <div class="hero-golden__bg vac-cinematic-hero__bg">
+            <img class="hero-slide active vac-cinematic-hero__img"
+                 th:src="${experience.displayPrimaryImageUrl != null ? experience.displayPrimaryImageUrl : '/uploads/experiences-safari-hero.jpeg'}"
+                 alt="Experience hero"
+                 onerror="this.onerror=null;this.src='/uploads/wildlife-gorillas.jpeg';" />
+            <div class="hero-golden__veil vac-cinematic-hero__veil"></div>
+        </div>
+        <div class="hero-golden__content" style="justify-content: flex-end; padding-bottom: 40px;">
+            <nav class="vac-breadcrumb vac-breadcrumb--light" aria-label="Breadcrumb" style="margin-bottom: 16px;">
+                <a th:href="@{/}">Home</a>
+                <span>/</span>
+                <a th:href="@{/experiences}">Experiences</a>
+                <span>/</span>
+                <span th:text="${experience.title}">Experience</span>
+            </nav>
+            <p class="hero-golden__kicker" th:text="${experience.experienceType != null ? experience.experienceType : 'Curated Experience'}">Experience</p>
+            <h1 class="hero-golden__title hero-golden__title--compact" th:text="${experience.title}">Experience</h1>
+        </div>
+    </section>
+
+    <section class="immersive-section" style="padding: 80px 60px; background: var(--white);">
+        <div class="immersive-section__inner" style="max-width: 1400px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;">
+            
+            <!-- Gallery & Story -->
+            <div style="position: sticky; top: 100px;">
+                <img th:src="${experience.displayPrimaryImageUrl != null ? experience.displayPrimaryImageUrl : '/uploads/experiences-safari-hero.jpeg'}"
+                     alt="Experience image"
+                     style="width: 100%; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.06); margin-bottom: 20px;"
+                     onerror="this.onerror=null;this.src='/uploads/wildlife-gorillas.jpeg';"/>
+                     
+                <div th:if="${!#lists.isEmpty(experience.additionalImages)}" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-bottom: 40px;">
+                    <div th:each="imageUrl : ${experience.additionalImages}" style="border-radius: 6px; overflow:hidden; background: rgba(0,0,0,0.03); aspect-ratio: 1; cursor: pointer; transition: transform 0.2s;">
+                        <img th:src="${imageUrl}" alt="Additional experience image" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none';" style="width:100%; height:100%; object-fit:cover; display:block;" />
+                    </div>
+                </div>
+
+                <div style="padding: 40px; background: var(--ivory); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                    <span class="section-kicker">Full Experience Story</span>
+                    <h2 style="font-family: var(--font-ui); font-size: 28px; color: var(--blk); margin-bottom: 24px;">What this journey includes</h2>
+                    <p class="section-body" th:text="${experience.description != null and !#strings.isEmpty(experience.description) ? experience.description : experience.shortDescription}">Description</p>
+                    
+                    <div th:if="${experience.whatsIncluded != null}" style="margin-top: 32px;">
+                        <h3 style="font-family: var(--font-body); font-weight: 700; font-size: 14px; text-transform: uppercase; color: var(--blk); margin-bottom: 8px;">Included</h3>
+                        <p class="section-body" style="font-size: 15px;" th:text="${experience.whatsIncluded}">Included details</p>
+                    </div>
+                    <div th:if="${experience.whatToBring != null}" style="margin-top: 24px;">
+                        <h3 style="font-family: var(--font-body); font-weight: 700; font-size: 14px; text-transform: uppercase; color: var(--blk); margin-bottom: 8px;">Bring</h3>
+                        <p class="section-body" style="font-size: 15px;" th:text="${experience.whatToBring}">Bring list</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Details & Booking Panel -->
+            <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 32px; background: var(--ivory); border-radius: 8px; margin-bottom: 40px;">
+                    <div>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Experience Type</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk); font-weight: 600;" th:text="${experience.experienceType}">CULTURAL</span>
+                    </div>
+                    <div>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Booking Type</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk); font-weight: 600;" th:text="${experience.bookingType}">DIRECT</span>
+                    </div>
+                    <div th:if="${experience.durationHours != null}">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Duration</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);"><span th:text="${experience.durationHours}">2.0</span> hours</span>
+                    </div>
+                    <div>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Price Per Person</span>
+                        <span style="font-family: var(--font-ui); font-size: 20px; font-weight: 700; color: var(--blk);">$<span th:text="${experience.pricePerPerson != null ? #numbers.formatDecimal(experience.pricePerPerson,1,'COMMA',2,'POINT') : 'On request'}">0.00</span></span>
+                    </div>
+                    <div th:if="${experience.groupPrice != null}">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Group Price</span>
+                        <span style="font-family: var(--font-ui); font-size: 18px; font-weight: 700; color: var(--blk);">$<span th:text="${#numbers.formatDecimal(experience.groupPrice,1,'COMMA',2,'POINT')}">0.00</span></span>
+                    </div>
+                    <div th:if="${experience.priceNote != null}">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Price Note</span>
+                        <span style="font-family: var(--font-body); font-size: 15px; color: var(--blk);" th:text="${experience.priceNote}">Price note</span>
+                    </div>
+                    <div>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Group Size</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);"><span th:text="${experience.minGroupSize}">1</span> - <span th:text="${experience.maxGroupSize}">15</span></span>
+                    </div>
+                    <div th:if="${experience.location != null}">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Location</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);" th:text="${experience.location}">Location</span>
+                    </div>
+                    <div th:if="${experience.meetingPoint != null}">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Meeting Point</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);" th:text="${experience.meetingPoint}">Meeting point</span>
+                    </div>
+                    <div>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Languages</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);" th:text="${experience.languagesOffered}">English, French</span>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ash); display: block; margin-bottom: 4px;">Availability</span>
+                        <span style="font-family: var(--font-body); font-size: 16px; color: var(--blk);" th:text="${experience.availableDaily ? 'Available daily' : (experience.availableDays != null ? experience.availableDays : 'Custom schedule')}">Availability</span>
+                        <p th:if="${experience.bookingType.name() == 'INQUIRY'}" style="color: var(--ash); font-size: 13px; margin: 4px 0 0 0;">Request-only or tailored schedule.</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                    <h3 style="font-family: var(--font-ui); font-size: 18px; color: var(--blk); margin-bottom: 16px;">Upcoming Calendar (30 days)</h3>
+                    <div th:if="${#lists.isEmpty(availabilitySlots)}" style="color: var(--ash); font-family: var(--font-body); font-size: 15px;">No slots currently published.</div>
+                    <ul th:if="${!#lists.isEmpty(availabilitySlots)}" style="list-style: none; padding: 0; margin: 0; display: grid; gap: 8px;">
+                        <li th:each="s : ${availabilitySlots}" style="display: flex; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,0.02); border-radius: 4px; font-family: var(--font-body); font-size: 15px;">
+                            <span th:text="${#temporals.format(s.slotDate,'yyyy-MM-dd')}" style="font-weight: 600;">2026-01-01</span>
+                            <span>
+                                <span th:text="${s.status}" style="margin-right: 16px; font-size: 13px; font-weight: 700; color: var(--g);">AVAILABLE</span>
+                                <span style="color: var(--ash);">Booked: <span th:text="${s.bookedCount}">0</span>/<span th:text="${s.maxCapacity}">15</span></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div th:if="${successMessage}" style="background: #F6FFED; border: 1px solid #B7EB8F; border-radius: 8px; color: #389E0D; padding: 16px; margin-bottom: 24px; font-family: var(--font-body); font-size: 15px;" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" style="background: #FFF1F0; border: 1px solid #FFA39E; border-radius: 8px; color: #CF1322; padding: 16px; margin-bottom: 24px; font-family: var(--font-body); font-size: 15px;" th:text="${errorMessage}"></div>
+
+                <!-- Booking Form -->
+                <form th:if="${isAuthenticated}" th:action="@{|/experiences/${experience.slug}/book|}" method="post" style="border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 32px; margin-bottom: 40px; background: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <h3 style="font-family: var(--font-ui); font-size: 24px; color: var(--blk); margin: 0 0 24px 0;">Book / Inquire</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Guest Name</label>
+                            <input name="guestName" required style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;"/>
+                        </div>
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Email</label>
+                            <input type="email" name="guestEmail" required style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;"/>
+                        </div>
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Preferred Date</label>
+                            <input type="date" name="preferredDate" required style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;"/>
+                        </div>
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Alternative Date</label>
+                            <input type="date" name="alternativeDate" style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;"/>
+                        </div>
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Group Size</label>
+                            <input type="number" name="groupSize" min="1" value="1" required style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;"/>
+                        </div>
+                        <div>
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Language</label>
+                            <select name="preferredLanguage" style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;">
+                                <option>English</option>
+                                <option>French</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Payment Method</label>
+                        <select name="paymentMethod" style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;">
+                            <option value="">Confirm Payment Later</option>
+                            <option value="STRIPE_CARD">Card (Stripe)</option>
+                            <option value="MTN_MOMO">MTN Mobile Money</option>
+                            <option value="AIRTEL_MONEY">Airtel Money</option>
+                        </select>
+                        <p style="font-family: var(--font-body); font-size: 13px; color: var(--ash); margin: 8px 0 0 0;">Recommended for testing: leave this on <strong>Confirm Payment Later</strong> so the booking request is recorded without live payment setup.</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Special Requests</label>
+                        <textarea name="specialRequests" rows="3" style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <input name="captchaToken" placeholder="Captcha token (optional)" style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none; margin-bottom: 24px;" />
+                    
+                    <button class="btn-primary" type="submit" style="width: 100%; justify-content: center; padding: 16px; font-size: 16px;" th:text="${experience.bookingType.name() == 'DIRECT' ? 'Submit Booking' : 'Submit Inquiry'}">Submit</button>
+                </form>
+
+                <div th:if="${!isAuthenticated}" style="border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 32px; margin-bottom: 40px; background: var(--ivory); text-align: center;">
+                    <h3 style="font-family: var(--font-ui); font-size: 20px; color: var(--blk); margin-bottom: 12px;">Booking requires account</h3>
+                    <p class="section-body" style="margin-bottom: 24px; font-size: 15px;">Sign in as a registered client to book or submit a custom inquiry.</p>
+                    <a class="btn-primary" th:href="@{/login}" style="display: inline-flex;">Sign in to Continue</a>
+                </div>
+
+                <!-- Reviews -->
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 24px;">
+                        <div>
+                            <span class="section-kicker">Guest Feedback</span>
+                            <h3 style="font-family: var(--font-ui); font-size: 24px; color: var(--blk); margin: 4px 0 0 0;">Approved Reviews</h3>
+                        </div>
+                        <span style="background: rgba(0,0,0,0.05); color: var(--blk); font-family: var(--font-body); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px;" th:text="${#lists.size(reviews)} + ' visible'">0 visible</span>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(reviews)}" style="padding: 24px; border-radius: 8px; border: 1px dashed rgba(0,0,0,0.15); color: var(--ash); text-align: center; font-family: var(--font-body); font-size: 14px; margin-bottom: 32px;">
+                        No approved reviews are visible for this experience yet.
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(reviews)}" style="display:grid; gap: 16px; margin-bottom: 32px;">
+                        <article th:each="review : ${reviews}" style="padding: 24px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); background: var(--ivory);">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+                                <div>
+                                    <h4 style="margin:0; font-family: var(--font-body); font-size: 16px; color: var(--blk);" th:text="${review.reviewerName}">Reviewer</h4>
+                                    <p style="margin:4px 0 0; color: var(--ash); font-size: 13px;" th:text="${review.reviewerCountry != null ? review.reviewerCountry : 'Verified guest'}">Verified guest</p>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="color: #F5A623; font-size: 14px; letter-spacing: 2px;" th:text="${review.rating} + ' / 5'">5 / 5</div>
+                                    <p style="margin:4px 0 0; color: var(--ash); font-size: 12px;" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">Date</p>
+                                </div>
+                            </div>
+                            <p style="margin:0; color: var(--blk); font-family: var(--font-body); font-size: 15px; line-height: 1.6;" th:text="${review.comment}">Review comment</p>
+                        </article>
+                    </div>
+
+                    <!-- Leave a Review -->
+                    <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 32px;">
+                        <h4 style="font-family: var(--font-body); font-size: 18px; margin-bottom: 8px;">Leave a Verified Review</h4>
+                        <p style="font-family: var(--font-body); font-size: 14px; color: var(--ash); margin-bottom: 16px;">Only completed experiences unlock verified review submission.</p>
+                        
+                        <div th:if="${isAuthenticated and canSubmitReview}" style="margin-bottom:24px; padding:16px; border-radius:8px; border:1px solid #B7EB8F; background:#F6FFED; color:#389E0D; font-family: var(--font-body); font-size: 14px;">
+                            <strong th:text="${reviewerDisplayName}">Reviewer</strong>
+                            <span th:if="${reviewerDisplayEmail != null}" th:text="' · ' + ${reviewerDisplayEmail}">reviewer@example.com</span>
+                            <div style="margin-top:8px;" th:text="${reviewStatusMessage}">Your account is eligible.</div>
+                        </div>
+                        <div th:if="${isAuthenticated and !canSubmitReview}" style="margin-bottom:24px; padding:16px; border-radius:8px; border:1px solid #FFE58F; background:#FFFBE6; color:#D46B08; font-family: var(--font-body); font-size: 14px;" th:text="${reviewStatusMessage}">
+                            Review access unlocks after completion.
+                        </div>
+
+                        <form th:if="${isAuthenticated and canSubmitReview}" th:action="@{|/experiences/${experience.slug}/reviews|}" method="post" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Rating</label>
+                                <select name="rating" required style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none;">
+                                    <option value="">Choose a rating</option>
+                                    <option value="5">5 / 5</option>
+                                    <option value="4">4 / 5</option>
+                                    <option value="3">3 / 5</option>
+                                    <option value="2">2 / 5</option>
+                                    <option value="1">1 / 5</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-family: var(--font-body); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--ash); margin-bottom: 8px; display: block;">Comment</label>
+                                <textarea name="comment" rows="4" required placeholder="Tell future guests what the team delivered well..." style="width: 100%; padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-family: var(--font-body); font-size: 15px; outline: none; resize: vertical;"></textarea>
+                            </div>
+                            <button class="btn-outline" type="submit" style="align-self: flex-start;">Submit Verified Review</button>
+                        </form>
+                        <p th:if="${!isAuthenticated}" style="color: var(--ash); font-family: var(--font-body); font-size: 14px; margin: 0;">Sign in as a registered client to submit verified reviews for completed experiences.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

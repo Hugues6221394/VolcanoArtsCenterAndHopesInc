@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-base}">
+<head><title>Content Dashboard</title></head>
+<body>
+<th:block layout:fragment="breadcrumb">
+    <a th:href="@{/admin/content/dashboard}">Content</a>
+    <span class="sep">&rsaquo;</span>
+    <span>Dashboard</span>
+</th:block>
+
+<main layout:fragment="content">
+    <section class="vac-role-hero vac-role-hero--admin reveal" style="min-height:48vh; align-items:flex-end;">
+        <img src="/uploads/arts page 4.jpg" alt="Volcano Arts gallery wall" loading="eager" onerror="this.onerror=null;this.src='/uploads/Home_virunga.png';" />
+        <div class="vac-role-hero__overlay" style="background:linear-gradient(165deg, rgba(0,28,14,0.25) 0%, rgba(0,14,7,0.93) 100%);"></div>
+        <div class="vac-role-hero__content" style="max-width:1300px; margin:0 auto; padding:2.5rem 2rem;">
+            <p class="vac-role-hero__kicker">Content Studio &bull; Art Curator &bull; Platform Editorial</p>
+            <h1 class="vac-role-hero__title" style="font-size:clamp(2.4rem,6vw,5rem);">CONTENT<br><span style="color:var(--vac-gold);">COMMAND CENTER</span></h1>
+            <p class="vac-role-hero__desc" style="max-width:520px; margin-top:0.75rem;">Curate the marketplace, publish cultural stories, and keep every visual asset sharp.</p>
+            <div class="vac-client-hero-strip">
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalProducts}">0</strong>
+                    <span>Artworks</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalBlogPosts}">0</strong>
+                    <span>Blog Posts</span>
+                </div>
+                <div class="vac-client-hero-strip__stat">
+                    <strong th:text="${totalExperiences}">0</strong>
+                    <span>Experiences</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="admin-page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <div class="admin-page-header__info">
+            <h1>Catalog Overview</h1>
+            <p style="color:var(--vac-muted);">Real-time metrics for marketplace inventory and editorial stories.</p>
+        </div>
+        <div class="admin-page-header__actions">
+            <a class="btn btn--primary btn--sm" th:href="@{/admin/content/products}">Manage Artworks</a>
+        </div>
+    </div>
+
+    <!-- Ultra Premium KPIs -->
+    <div class="admin-kpi-grid reveal-stagger" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;">
+        <a class="admin-kpi" th:href="@{/admin/content/products}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Total Catalog</div>
+            <div class="admin-kpi__value" data-count th:text="${totalProducts}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-green); font-weight:700;" th:text="${availableProducts + ' available'}">0 available</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/content/products(featured=true)}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Featured</div>
+            <div class="admin-kpi__value" data-count th:text="${featuredProducts}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Homepage Ready</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/content/experiences}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Experiences</div>
+            <div class="admin-kpi__value" data-count th:text="${totalExperiences}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Cultural Journeys</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/content/blog-posts}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Stories</div>
+            <div class="admin-kpi__value" data-count th:text="${totalBlogPosts}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Editorial Library</div>
+        </a>
+        <a class="admin-kpi" th:href="@{/admin/content/media-library}">
+            <div class="admin-kpi__label" style="color:var(--vac-muted); font-size:0.8rem; font-weight:800; text-transform:uppercase;">Media Assets</div>
+            <div class="admin-kpi__value" data-count th:text="${totalMediaAssets}" style="font-family:var(--font-display); font-size:2.5rem; line-height:1.2; color:var(--vac-green-900);">0</div>
+            <div class="admin-kpi__trend" style="font-size:0.85rem; color:var(--vac-muted);">Visual Library</div>
+        </a>
+    </div>
+
+    <!-- Analytics Charts Grid -->
+    <div style="margin-bottom:2.5rem;">
+        <div class="admin-chart-container reveal">
+            <h3 style="font-family:var(--font-display); font-size:1.4rem; color:var(--vac-green-900); margin-bottom:0.5rem;">Content Engagement</h3>
+            <p style="color:var(--vac-muted); font-size:0.9rem; margin-bottom:1.5rem;">Platform views vs new editorial/catalog content published.</p>
+            <div style="position:relative; height:320px; width:100%;">
+                <canvas id="contentEngagementChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publishing Metrics & Quick Actions -->
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:2rem; margin-bottom:3rem;">
+        <div class="admin-panel reveal">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Publishing Health</h3>
+                    <p class="admin-panel__sub">Catalog readiness and inventory warnings.</p>
+                </div>
+            </div>
+            <div style="padding:1.5rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Available Artworks</span>
+                    <strong th:text="${availableProducts}" style="color:var(--vac-green);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Featured Artworks</span>
+                    <strong th:text="${featuredProducts}" style="color:var(--vac-ink);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--vac-line); padding-bottom:0.5rem;">
+                    <span style="font-weight:700;">Low Stock Watch</span>
+                    <strong th:text="${lowStockProducts}" style="color:var(--vac-gold);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="font-weight:700;">Collections</span>
+                    <strong th:text="${totalCollections}" style="color:var(--vac-ink);">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panel reveal" style="animation-delay:0.1s;">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Quick Actions</h3>
+                    <p class="admin-panel__sub">Build the storefront.</p>
+                </div>
+            </div>
+            <div style="padding:1.5rem; display:grid; gap:0.75rem;">
+                <a th:href="@{/admin/content/products}" style="display:flex; align-items:center; padding:1rem; background:var(--vac-canvas); border-radius:var(--vac-radius-sm); color:var(--vac-ink); text-decoration:none; font-weight:700;">
+                    <svg style="width:20px; height:20px; stroke:var(--vac-green); margin-right:1rem;" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    Add or Edit Artwork
+                </a>
+                <a th:href="@{/admin/content/experiences}" style="display:flex; align-items:center; padding:1rem; background:var(--vac-canvas); border-radius:var(--vac-radius-sm); color:var(--vac-ink); text-decoration:none; font-weight:700;">
+                    <svg style="width:20px; height:20px; stroke:var(--vac-green); margin-right:1rem;" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="8"/></svg>
+                    Curate Experiences
+                </a>
+                <a th:href="@{/admin/content/blog-posts}" style="display:flex; align-items:center; padding:1rem; background:var(--vac-canvas); border-radius:var(--vac-radius-sm); color:var(--vac-ink); text-decoration:none; font-weight:700;">
+                    <svg style="width:20px; height:20px; stroke:var(--vac-green); margin-right:1rem;" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 19.5V4a2 2 0 0 1 2-2h10l4 4v13.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg>
+                    Publish Story
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Media & Catalog -->
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:2rem; margin-bottom:3rem;">
+        <div class="admin-panel reveal">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Recently Touched Art</h3>
+                    <p class="admin-panel__sub">Latest updates to the catalog.</p>
+                </div>
+                <a th:href="@{/admin/content/products}" class="btn btn--ghost btn--sm">Manage All</a>
+            </div>
+            <div style="padding:1.5rem; display:grid; gap:1rem;">
+                <a th:each="p : ${recentProducts}" th:href="@{/admin/content/products}" style="display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid var(--vac-line); border-radius:var(--vac-radius-sm); text-decoration:none; color:var(--vac-ink);">
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <img th:src="${p.displayPrimaryImageUrl != null ? p.displayPrimaryImageUrl : '/images/logo.jpg'}" alt="" loading="lazy" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" />
+                        <div>
+                            <strong th:text="${p.name}" style="display:block; font-size:1.1rem;">Artwork</strong>
+                            <span th:text="${p.artistName != null && !#strings.isEmpty(p.artistName) ? 'by ' + p.artistName : 'Volcano Arts Center'}" style="color:var(--vac-muted); font-size:0.85rem;">Artist</span>
+                        </div>
+                    </div>
+                    <span th:text="${'$' + p.price}" style="font-size:1rem; font-weight:800; color:var(--vac-green-900);">0</span>
+                </a>
+                <p style="text-align:center; color:var(--vac-muted);" th:if="${#lists.isEmpty(recentProducts)}">No artwork has been added yet.</p>
+            </div>
+        </div>
+
+        <div class="admin-panel reveal" style="animation-delay:0.1s;">
+            <div class="admin-panel__header">
+                <div>
+                    <h3 class="admin-panel__title">Visual Library</h3>
+                    <p class="admin-panel__sub">Latest uploaded assets.</p>
+                </div>
+                <a th:href="@{/admin/content/media-library}" class="btn btn--ghost btn--sm">Open Media</a>
+            </div>
+            <div style="padding:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <figure th:each="m : ${recentMedia}" style="margin:0;">
+                    <img th:src="${m.publicUrl}" th:alt="${m.altText != null ? m.altText : 'Media asset'}" loading="lazy" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:var(--vac-radius-sm);" />
+                    <figcaption th:text="${m.title != null && !#strings.isEmpty(m.title) ? m.title : 'Media asset'}" style="font-size:0.75rem; color:var(--vac-muted); margin-top:0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Media asset</figcaption>
+                </figure>
+                <p style="text-align:center; color:var(--vac-muted); grid-column:1 / -1;" th:if="${#lists.isEmpty(recentMedia)}">Upload images to build a stronger storefront.</p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
